@@ -1,200 +1,65 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A visual, evidence-based summary of rotation and representation experiments for 3D point clouds.">
-  <meta name="theme-color" content="#f4f0e8">
-  <title>3D Point Cloud Research Results</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <a class="skip-link" href="#main">Skip to results</a>
 
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="3D point-cloud results home">
-      <span class="brand-mark" aria-hidden="true"></span>
-      <span>3DPC / Results</span>
-    </a>
-    <nav aria-label="Primary navigation">
-      <a href="#overview">Overview</a>
-      <a href="#results">Results</a>
-      <a href="#protocol">Protocol</a>
-      <a href="#ledger">Ledger</a>
-    </nav>
-  </header>
+name: Publish HTML to Portfolio
 
-  <main id="main">
-    <section class="hero" id="top">
-      <div class="hero-copy">
-        <p class="kicker">Research snapshot · <span id="snapshot-date">2026-10-23</span></p>
-        <h1>What survives when a point cloud rotates?</h1>
-        <p class="hero-lede">A compact account of the methods, intuition, and evidence behind a family of 3D representation experiments—from frozen encoders and LoRA adaptation to latent actions and an SE(3)-equivariant JEPA.</p>
-        <div class="hero-actions">
-          <a class="button primary" href="#results">Explore the evidence</a>
-          <a class="button quiet" href="#protocol">See the protocol</a>
-        </div>
-        <div class="snapshot-note">
-          <span class="live-dot" aria-hidden="true"></span>
-          <span>Completed results, active runs, and prepared studies are labeled separately below.</span>
-        </div>
-      </div>
-      <div class="hero-visual" aria-label="Abstract point cloud rotating through three coordinate axes">
-        <canvas id="point-cloud" width="620" height="520"></canvas>
-        <div class="axis-label axis-x">X</div>
-        <div class="axis-label axis-y">Y</div>
-        <div class="axis-label axis-z">Z</div>
-        <div class="orbit-label">same object<br>different pose</div>
-      </div>
-    </section>
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'website/**'
+      - '.github/workflows/deploy-website.yml'
+  workflow_dispatch:
 
-    <section class="overview section" id="overview">
-      <div class="section-heading">
-        <p class="kicker">The research program</p>
-        <h2>Four questions, one controlled theme</h2>
-        <p>Rotation is both a nuisance and a source of structure. These experiments ask where pose information lives, when it hurts recognition, and whether the desired transformation law can be learned—or should be built in.</p>
-      </div>
-      <div class="question-grid">
-        <article>
-          <span class="question-number">01</span>
-          <h3>Stability</h3>
-          <p>Do frozen features stay close when the same geometry is rotated?</p>
-        </article>
-        <article>
-          <span class="question-number">02</span>
-          <h3>Separation</h3>
-          <p>Can invariant identity and pose-sensitive information occupy different heads?</p>
-        </article>
-        <article>
-          <span class="question-number">03</span>
-          <h3>Emergence</h3>
-          <p>Does reconstruction learning create a simple, compositional latent rotation action?</p>
-        </article>
-        <article>
-          <span class="question-number">04</span>
-          <h3>Guarantee</h3>
-          <p>What changes when SE(3) transformation rules are enforced by construction?</p>
-        </article>
-      </div>
-      <div class="headline-strip" id="headline-metrics" aria-label="Headline results"></div>
-    </section>
+permissions:
+  contents: read
 
-    <section class="section results-section" id="results">
-      <div class="section-heading split-heading">
-        <div>
-          <p class="kicker">Results</p>
-          <h2>Evidence, not just endpoints</h2>
-        </div>
-        <p>Each tab states the question, intuition, protocol, result, and limitation. Status labels distinguish finished findings from active work and prepared experiments.</p>
-      </div>
-      <div class="result-tabs-shell">
-        <div id="result-tabs" class="result-tabs" role="tablist" aria-label="Result experiments"></div>
-        <div class="tab-toolbar">
-          <p id="tab-summary" class="tab-summary" aria-live="polite"></p>
-          <div class="tab-controls" aria-label="Move between result tabs">
-            <button type="button" data-tab-step="-1" aria-label="Previous result">←</button>
-            <button type="button" data-tab-step="1" aria-label="Next result">→</button>
-          </div>
-        </div>
-      </div>
-      <div id="experiment-list" class="experiment-list"></div>
-    </section>
+jobs:
+  publish:
+    runs-on: ubuntu-latest
 
-    <section class="section protocol" id="protocol">
-      <div class="section-heading">
-        <p class="kicker">Controlled protocol</p>
-        <h2>Rotate first. Let each method be itself afterward.</h2>
-        <p>This is the protocol for the unified cross-method benchmark. The retrospective encoder sweeps and synthetic SO(2) studies state their own splits and controls in their result cards. For the benchmark, the experimental transform stays outside the architecture, preserving a shared task while allowing author-specific sampling, neighborhoods, features, and optimization.</p>
-      </div>
-      <div class="flow" aria-label="Controlled data flow">
-        <div class="flow-step">
-          <span>01</span>
-          <strong>Canonical sample</strong>
-          <small>Stable object identity and index</small>
-        </div>
-        <div class="flow-arrow" aria-hidden="true">→</div>
-        <div class="flow-step accent-step">
-          <span>02</span>
-          <strong>Controlled rotation</strong>
-          <small>Z or Haar-uniform SO(3)</small>
-        </div>
-        <div class="flow-arrow" aria-hidden="true">→</div>
-        <div class="flow-step">
-          <span>03</span>
-          <strong>Native geometry</strong>
-          <small>Sampling, frames, neighborhoods</small>
-        </div>
-        <div class="flow-arrow" aria-hidden="true">→</div>
-        <div class="flow-step">
-          <span>04</span>
-          <strong>Model + metric</strong>
-          <small>Shared result contract</small>
-        </div>
-      </div>
-      <div class="protocol-grid">
-        <article>
-          <h3>Three rotation protocols</h3>
-          <dl>
-            <div><dt>Z → Z</dt><dd>Train and test around a fixed vertical axis.</dd></div>
-            <div><dt>Z → SO(3)</dt><dd>Train on vertical rotations; test arbitrary orientation.</dd></div>
-            <div><dt>SO(3) → SO(3)</dt><dd>Train and test across arbitrary orientation.</dd></div>
-          </dl>
-        </article>
-        <article>
-          <h3>Deterministic evaluation</h3>
-          <p>Evaluation rotations are derived from experiment seed, split, and stable sample identity. Coordinates and declared vector attributes receive the same transform.</p>
-        </article>
-        <article>
-          <h3>Honest provenance</h3>
-          <p>Author-native integrations are distinguished from controlled adaptations. Smoke tests are labeled as software validation rather than scientific evidence.</p>
-        </article>
-      </div>
-    </section>
+    steps:
+      - name: Checkout private repository
+        uses: actions/checkout@v4
 
-    <section class="section reading-guide" id="reading-guide">
-      <div class="section-heading">
-        <p class="kicker">Reading the numbers</p>
-        <h2>Similar metrics answer different questions</h2>
-      </div>
-      <div class="glossary-grid">
-        <article><h3>Overall accuracy</h3><p>Fraction of correctly classified objects. Higher is better.</p></article>
-        <article><h3>Cosine similarity</h3><p>Directional agreement with the canonical embedding. High cosine alone does not prove invariance.</p></article>
-        <article><h3>Relative displacement</h3><p>Feature movement normalized by canonical feature norm. Lower means less motion.</p></article>
-        <article><h3>Orbit variance</h3><p>Share of observed variation associated with rotation within an object. It does not specify a transformation law.</p></article>
-        <article><h3>Action error</h3><p>How well a fitted latent transformation predicts a held-out rotated state. Lower is better.</p></article>
-        <article><h3>Composition error</h3><p>Whether two fitted rotations combine like their geometric counterparts. Lower is better.</p></article>
-      </div>
-    </section>
+      - name: Verify access token
+        env:
+          PUBLIC_REPO_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN }}
+        run: |
+          if [ -z "$PUBLIC_REPO_TOKEN" ]; then
+            echo "::error::PUBLIC_REPO_TOKEN is missing"
+            exit 1
+          fi
 
-    <section class="section ledger" id="ledger">
-      <div class="section-heading split-heading">
-        <div>
-          <p class="kicker">Experiment ledger</p>
-          <h2>What is done—and what is not</h2>
-        </div>
-        <p>This ledger is assembled from sanitized result bundles. Private source, raw datasets, checkpoints, machine paths, and credentials are not part of the public site.</p>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Experiment</th><th>Status</th><th>Evidence</th><th>Snapshot</th></tr></thead>
-          <tbody id="ledger-body"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+      - name: Checkout public website
+        uses: actions/checkout@v4
+        with:
+          repository: rnjbdya/rnjbdya.github.io
+          token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+          path: public-site
+          ref: main
+          persist-credentials: true
 
-  <footer>
-    <div>
-      <span class="brand footer-brand"><span class="brand-mark" aria-hidden="true"></span>3DPC / Results</span>
-      <p>A public results layer for an active private research repository.</p>
-    </div>
-    <div>
-      <p>Static, dependency-free, and designed for GitHub Pages.</p>
-      <a href="#top">Back to top ↑</a>
-    </div>
-  </footer>
+      - name: Copy dashboard files
+        run: |
+          mkdir -p public-site/dashboard
 
-  <script src="site-data.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+          cp website/index.html public-site/dashboard/
+          cp website/styles.css public-site/dashboard/
+          cp website/site-data.js public-site/dashboard/
+          cp website/app.js public-site/dashboard/
+
+      - name: Commit and push changes
+        working-directory: public-site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add dashboard/
+
+          if git diff --cached --quiet; then
+            echo "No changes to publish"
+            exit 0
+          fi
+
+          git commit -m "Update dashboard from private repository"
+          git push origin HEAD:main
