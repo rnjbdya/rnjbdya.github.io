@@ -2,11 +2,226 @@ window.SITE_DATA = {
   "sources": [
     {
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30",
+      "snapshot_date": "2026-10-23",
       "title": "Current server results"
+    },
+    {
+      "source_id": "so3-final",
+      "snapshot_date": "2026-11-06",
+      "title": "Joint invariant–equivariant VLM study"
     }
   ],
   "experiments": [
+    {
+      "id": "joint-so3-vlm-study",
+      "tab_label": "Joint SO(3)-VLM study",
+      "order": 1,
+      "eyebrow": "Cap3D + ShapeNetPart · complete research arc",
+      "title": "Invariant semantics and equivariant geometry work together—but learned attention did not beat simple pooling",
+      "status": "complete",
+      "question": "Can a point-cloud VLM combine rotation-invariant meaning with rotation-equivariant geometry, and does language-conditioned point attention improve spatial grounding beyond uniform equivariant pooling?",
+      "intuition": "Think of two coordinated views of the same scene: S recognizes what each object is without caring how it is rotated; G carries arrows that rotate with the scene. Language may choose which arrows matter, while frame-aware dot products turn those arrows into left/right, front/behind, and above/below evidence.",
+      "method": "The study progressed from numerical symmetry tests to Cap3D point–text alignment, ShapeNetPart part and spatial grounding, an audit of the original Phase 3 mismatch, restoration of the intended attention operator, and finally a frozen one-shot evaluation of separately trained learned-attention and uniform-pooling controls on 256 reserved scenes.",
+      "takeaway": "The structural hypothesis is supported: invariant semantic features, equivariant vectors, joint rotation consistency, and common-translation consistency were verified. Semantic and geometric information are complementary. The attention-utility hypothesis is not supported on this benchmark: uniform pooling matched or exceeded learned attention in both final protocols.",
+      "caveat": "The frozen comparison uses one training seed, synthetic templated spatial language, closed-set supervised roles, and a benchmark whose object centers are already recoverable by uniformly averaging G. It does not demonstrate unrestricted natural-language understanding, open-vocabulary grounding, or value from point selection on tasks that require local parts.",
+      "metrics": [
+        {
+          "label": "Structured grounding",
+          "value": "78.13 vs 78.91%",
+          "detail": "Learned attention vs uniform · final held-out"
+        },
+        {
+          "label": "Text-driven grounding",
+          "value": "62.50 vs 65.63%",
+          "detail": "Learned attention vs uniform · final held-out"
+        },
+        {
+          "label": "Rotation + translation",
+          "value": "100% consistent",
+          "detail": "Joint scene/frame rotation and common translation"
+        },
+        {
+          "label": "Attention advantage",
+          "value": "Not observed",
+          "detail": "−0.78 pp structured · −3.13 pp text-driven"
+        }
+      ],
+      "architecture": {
+        "title": "One scene, two transformation laws",
+        "summary": "The actual restored model keeps meaning in scalars and orientation in vectors. Only invariant quantities create attention weights, so rotating the scene rotates the fused vector without changing which points receive weight.",
+        "input": "Point-cloud scene P + frozen OpenCLIP query q + observer frame F",
+        "streams": [
+          {
+            "symbol": "S(P)",
+            "title": "Invariant semantic stream",
+            "detail": "Distance-based scalar features identify objects and align to frozen text.",
+            "tone": "invariant"
+          },
+          {
+            "symbol": "G(P)",
+            "title": "Equivariant geometric stream",
+            "detail": "Scene-centered vector features carry shape and relative position; they rotate with P.",
+            "tone": "equivariant"
+          }
+        ],
+        "fusion": {
+          "symbol": "αᵢ → vₜ",
+          "title": "Language-conditioned symmetry-preserving fusion",
+          "detail": "Query-specific invariant weights pool equivariant vectors for the target and reference."
+        },
+        "output": "Semantic role evidence + reference-dependent vector relation in frame F",
+        "equation": "αᵢ = softmaxᵢ φ(Sᵢ, q, Inv(Gᵢ))   ·   vₜ = Σᵢ αᵢGᵢ",
+        "equation_note": "Invariant weights × equivariant vectors = equivariant fused output"
+      },
+      "journey": {
+        "title": "The study became stricter whenever a shortcut appeared",
+        "summary": "Each stage answered a different question. The final claim rests on the corrected benchmark and frozen matched control—not on the earlier high numbers.",
+        "steps": [
+          {
+            "title": "Build the laws in",
+            "detail": "Synthetic random-SO(3) tests checked S, G, attention, fusion, and frame scores.",
+            "result": "Numerical symmetry passed."
+          },
+          {
+            "title": "Learn semantics",
+            "detail": "Cap3D contrastive training aligned the invariant point stream with frozen OpenCLIP text.",
+            "result": "Rotation stable; retrieval remained modest."
+          },
+          {
+            "title": "Test complementarity",
+            "detail": "Part and compositional tasks compared semantic-only, geometric-only, naive, and symmetry fusion.",
+            "result": "Both S and G were necessary."
+          },
+          {
+            "title": "Audit and repair",
+            "detail": "Phase 3 was found to bypass the intended fusion and cancel reference effects. Phase 3R restored both.",
+            "result": "Earlier attention claim invalidated.",
+            "tone": "warning"
+          },
+          {
+            "title": "Freeze the real control",
+            "detail": "Learned attention and uniform pooling were trained separately, then evaluated once on the reserved manifest.",
+            "result": "Uniform matched or won.",
+            "tone": "negative"
+          }
+        ]
+      },
+      "chart": {
+        "type": "paired-bars",
+        "title": "Decisive held-out result: learned attention versus uniform pooling",
+        "max": 100,
+        "groups": [
+          {
+            "label": "Structured query",
+            "learned": 78.13,
+            "uniform": 78.91
+          },
+          {
+            "label": "Text-driven",
+            "learned": 62.5,
+            "uniform": 65.63
+          },
+          {
+            "label": "Text relocation",
+            "learned": 9.77,
+            "uniform": 42.97
+          }
+        ],
+        "conclusion": "Higher is better. The paired 95% confidence interval for learned minus uniform included zero in the structured setting (−0.78 pp, [−2.34, +0.78]) and favored uniform in the text-driven setting (−3.13 pp, [−6.25, −0.39]). Relocation is an out-of-distribution stress test; its low learned score was audited and was not caused by an evaluator or label bug."
+      },
+      "claims": [
+        {
+          "status": "supported",
+          "title": "The transformation structure is correct",
+          "detail": "S stays invariant, G and fused vectors rotate equivariantly, and reference-frame scores remain consistent under joint rotations."
+        },
+        {
+          "status": "supported",
+          "title": "Semantics and geometry complement each other",
+          "detail": "Removing either source caused interpretable degradation in the corrected compositional task."
+        },
+        {
+          "status": "unsupported",
+          "title": "Learned attention improves this benchmark",
+          "detail": "A separately trained uniform control matched structured accuracy and was better in text-driven accuracy."
+        },
+        {
+          "status": "unsupported",
+          "title": "Earlier Phase 3 validates the original operator",
+          "detail": "The audited model bypassed learned G for spatial scoring and did not implement the intended query-conditioned fusion."
+        },
+        {
+          "status": "inconclusive",
+          "title": "Attention helps when local point selection is essential",
+          "detail": "This benchmark exposes object centers through uniform pooling, so it cannot settle tasks that require selecting small local parts."
+        },
+        {
+          "status": "inconclusive",
+          "title": "Training-seed robustness",
+          "detail": "The final scenes quantify evaluation uncertainty for one frozen seed, not variability across independently trained seeds."
+        }
+      ],
+      "table": {
+        "columns": [
+          "Frozen protocol",
+          "Learned attention",
+          "Uniform pooling",
+          "Learned − uniform"
+        ],
+        "rows": [
+          [
+            "Structured query grounding",
+            "78.13%",
+            "78.91%",
+            "−0.78 pp · CI [−2.34, +0.78]"
+          ],
+          [
+            "Text-driven grounding",
+            "62.50%",
+            "65.63%",
+            "−3.13 pp · CI [−6.25, −0.39]"
+          ],
+          [
+            "Text reference swap",
+            "57.42%",
+            "60.16%",
+            "−2.74 pp"
+          ],
+          [
+            "Text direction swap",
+            "62.11%",
+            "63.28%",
+            "−1.17 pp"
+          ],
+          [
+            "Text candidate relocation",
+            "9.77%",
+            "42.97%",
+            "−33.20 pp · OOD stress test"
+          ],
+          [
+            "Joint rotation consistency",
+            "100%",
+            "100%",
+            "0.00 pp"
+          ],
+          [
+            "Common-translation consistency",
+            "100%",
+            "100%",
+            "0.00 pp"
+          ]
+        ]
+      },
+      "notes": [
+        "Why uniform pooling is strong: every G point contains scene-centered position information, so averaging an object's points approximately recovers its center relative to the scene. The corrected labels mostly need object identity plus candidate–reference centers.",
+        "The text parser learned the six physical directions perfectly on the final set. Target-role accuracy was 75.78% for learned attention and 75.00% for uniform; reference-role accuracy was 59.38% and 61.33%.",
+        "Final evaluation used 256 reserved scenes exactly once. Checkpoints were selected on development data only. Confidence intervals describe paired final-scene uncertainty; they are not multi-seed training uncertainty.",
+        "The study supports controlled, supervised semantic–spatial grounding with frozen OpenCLIP embeddings. It does not support unrestricted language understanding or open-vocabulary generalization."
+      ],
+      "source_id": "so3-final",
+      "snapshot_date": "2026-11-06"
+    },
     {
       "id": "lora-sie-classification",
       "tab_label": "Classification",
@@ -160,7 +375,7 @@ window.SITE_DATA = {
         ]
       },
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30"
+      "snapshot_date": "2026-10-23"
     },
     {
       "id": "vanilla-lora-layerwise",
@@ -270,7 +485,7 @@ window.SITE_DATA = {
         ]
       },
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30"
+      "snapshot_date": "2026-10-23"
     },
     {
       "id": "pointmae-rotation-sweep",
@@ -397,7 +612,7 @@ window.SITE_DATA = {
         "Low angular frequencies dominated, but sensitivity varied with axis and starting orientation."
       ],
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30"
+      "snapshot_date": "2026-10-23"
     },
     {
       "id": "sonata-rotation-sweep",
@@ -508,7 +723,7 @@ window.SITE_DATA = {
         ]
       },
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30"
+      "snapshot_date": "2026-10-23"
     },
     {
       "id": "sie-representation",
@@ -621,7 +836,7 @@ window.SITE_DATA = {
         ]
       },
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30"
+      "snapshot_date": "2026-10-23"
     },
     {
       "id": "latent-actions",
@@ -786,7 +1001,7 @@ window.SITE_DATA = {
         ]
       },
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30"
+      "snapshot_date": "2026-10-23"
     },
     {
       "id": "latent-action-diagnostics",
@@ -929,121 +1144,108 @@ window.SITE_DATA = {
         ]
       },
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30"
+      "snapshot_date": "2026-10-23"
     },
     {
       "id": "se3-jepa",
       "tab_label": "SE3-JEPA",
       "order": 60,
-      "eyebrow": "SE3-JEPA · ShapeNet-55 → ModelNet40",
-      "title": "Equivariant masked prediction remains stable under rotation",
-      "status": "complete",
+      "eyebrow": "SE3-JEPA · live single-seed snapshot",
+      "title": "Masked prediction with typed geometric features",
+      "status": "running",
       "question": "Can a JEPA predict masked point-cloud latents while keeping every learned scalar and vector channel consistent with rigid motions, then adapt the encoder without breaking that structure?",
-      "intuition": "A scalar should not change under rotation, while each vector channel should rotate with the input. Relative coordinates are expanded in spherical harmonics and coupled to features by e3nn tensor products, so those transformation rules are architectural rather than learned from augmentation. The JEPA predicts an EMA teacher's hidden-patch features instead of reconstructing XYZ. The spherical variant gives the student only centroid-relative unit-sphere projections, optionally perturbed by training noise, while the EMA teacher retains the original radial geometry. During downstream adaptation, LoRA changes invariant coefficient functions, and classification pools only invariant scalars and vector norms.",
-      "method": "The vector model uses 32 scalar and 16 vector channels, 64 exclusive FPS/Voronoi patches, a four-layer student encoder, and a two-layer context-to-target predictor on SO(3)-rotated ShapeNet-55 inputs. The completed baseline uses 59.38% random patch masking. The spherical run projects every valid point about its masked centroid, uses all projected patches as student queries with training noise σ=0.02, and gathers the teacher's original coordinates at the same patch indices; it is paused at epoch 212. ModelNet40 adaptation uses either rank-8 equivariance-preserving LoRA (86,280 trainable parameters) or full encoder fine-tuning. Evaluation uses deterministic canonical, Z-axis, and Haar-SO(3) test views.",
-      "takeaway": "Random-mask pretraining completed 300 epochs with best validation loss 0.12629 at epoch 299. Spherical pretraining reached epoch 212 before being paused and achieved its current best loss 0.11757 at epoch 103; the loss values are not directly comparable because the masking ratios and student signals differ. The best spherical-source LoRA checkpoint reached 82.82% canonical, 82.74% Z-rotated, and 82.78% SO(3)-rotated accuracy. Full fine-tuning from the completed random-mask model reached 84.81% canonical and 84.72% SO(3), the strongest completed SE3-JEPA classification result here.",
-      "caveat": "All results use one seed, and ModelNet40 test accuracy selected the downstream best checkpoints, so they are descriptive and potentially optimistic rather than leakage-free rankings. Near-zero rotation gaps are expected from the equivariant backbone and invariant readout; they do not by themselves show that spherical masking improves semantic quality. Equivariance holds for learned operations on a fixed graph in exact arithmetic. FPS, nearest assignment, neighborhood boundaries, ties, floating point, and independently sampled spherical noise limit the end-to-end numerical claim. Random masking provides post-partition content isolation because its shared FPS/Voronoi partition sees the full cloud; spherical masking removes radial content but intentionally retains angular information.",
+      "intuition": "A scalar should not change under rotation, while each vector channel should rotate with the input. Relative coordinates are expanded in spherical harmonics and coupled to features by e3nn tensor products, so those transformation rules are architectural rather than learned from augmentation. The JEPA predicts an EMA teacher's hidden-patch features instead of reconstructing XYZ. During downstream adaptation, LoRA changes invariant coefficient functions, and classification pools only invariant scalars and vector norms.",
+      "method": "The vector model uses 32 scalar and 16 vector channels, 64 exclusive FPS/Voronoi patches, a four-layer student encoder, a two-layer context-to-target predictor, 59.38% random masking, and SO(3)-rotated ShapeNet-55 inputs. The teacher tokenizer and encoder are EMA copies. ModelNet40 adaptation starts from the frozen epoch-176 teacher snapshot and applies rank-8 LoRA to radial MLPs, scalar attention queries/keys, and scalar gates; 86,280 of 698,984 parameters are trainable.",
+      "takeaway": "At export, pretraining had reached epoch 190/300; its best validation loss was 0.13295 at epoch 187. The downstream run had reached epoch 38/100. Its checkpoint-selected best result was epoch 35: 78.04% on both unrotated and deterministically SO(3)-rotated ModelNet40. This equality is expected from the invariant readout and supports implementation consistency; it is not evidence that augmentation alone learned rotation robustness.",
+      "caveat": "Both production runs are active, use one seed, and are not final benchmark comparisons. Equivariance is guaranteed for the learned operations on a fixed graph in exact arithmetic; FPS, nearest assignment, kNN/radius boundaries, ties, and floating point make the complete pipeline only piecewise equivariant. Masked content is excluded after the shared FPS/Voronoi partition is built, so the current implementation demonstrates post-partition content isolation, not the stronger claim that patch construction itself never observes target points.",
       "metrics": [
         {
-          "label": "Best SE3-JEPA OA",
-          "value": "84.81%",
-          "detail": "Full fine-tune · canonical · epoch 283"
+          "label": "Best pretraining loss",
+          "value": "0.13295",
+          "detail": "Epoch 187 · ShapeNet-55 validation"
         },
         {
-          "label": "Best spherical LoRA OA",
-          "value": "82.82%",
-          "detail": "Canonical · epoch 91"
+          "label": "Best interim LoRA accuracy",
+          "value": "78.04%",
+          "detail": "Epoch 35 · unrotated and SO(3)"
         },
         {
-          "label": "Spherical LoRA SO(3) gap",
-          "value": "−0.04 pp",
-          "detail": "SO(3) minus canonical"
+          "label": "Best-checkpoint rotation gap",
+          "value": "0.00 pp",
+          "detail": "SO(3) minus unrotated · epoch 35"
         }
       ],
       "chart": {
-        "type": "protocol-bars",
-        "title": "ModelNet40 accuracy by test rotation",
-        "y_label": "Overall accuracy (%)",
+        "type": "progress",
+        "title": "Run progress at export time",
         "series": [
           {
-            "name": "LoRA · random epoch 176",
-            "none": 82.25,
-            "z": 82.25,
-            "so3": 82.29
+            "name": "ShapeNet-55 pretraining",
+            "value": 190,
+            "total": 300,
+            "detail": "validation loss 0.1331"
           },
           {
-            "name": "LoRA · random epoch 299",
-            "none": 81.36,
-            "z": 81.44,
-            "so3": 81.44
+            "name": "ModelNet40 LoRA",
+            "value": 38,
+            "total": 100,
+            "detail": "best mean accuracy 78.04% at epoch 35"
           },
           {
-            "name": "LoRA · spherical epoch 103",
-            "none": 82.82,
-            "z": 82.74,
-            "so3": 82.78
-          },
-          {
-            "name": "Full tune · random epoch 299",
-            "none": 84.81,
-            "z": null,
-            "so3": 84.72
+            "name": "Trainable parameters",
+            "value": 12.34,
+            "total": 100,
+            "detail": "86,280 / 698,984"
           }
         ]
       },
       "notes": [
-        "Pretraining provenance: random masking completed at epoch 300 (best epoch 299, validation loss 0.12629); spherical masking is paused at epoch 212 (best epoch 103, validation loss 0.11757). The spherical LoRA run uses an immutable copy of that epoch-103 teacher checkpoint.",
-        "The three LoRA runs completed 100 epochs. Their reported checkpoints were selected by the mean of canonical and SO(3) test accuracy: epoch 88 for both random-source runs and epoch 91 for the spherical-source run. The full fine-tune completed 300 epochs and selected epoch 283 by the same rule; Z-rotation was not separately evaluated for that checkpoint.",
-        "Focused FP32 coverage now passes 27 tests, including tokenizer, encoder, predictor, end-to-end equivariance, spherical projection, point permutations, padded batches, masked-content isolation, loss normalization, gradients, EMA, checkpoint resume, and exact reused-patch output/loss/gradient equivalence.",
+        "The LoRA source is an immutable copy of the then-best epoch-176 pretraining checkpoint (validation loss 0.13405). Pretraining continued independently and later improved, so the downstream run does not use the epoch-187 weights.",
+        "Focused FP32 tests passed 13/13. On the deterministic test instance, context, prediction, and teacher maximum absolute equivariance errors were 9.92e-6, 8.43e-6, and 1.17e-5; the rotated loss difference was 0.0 (test tolerance 3e-4).",
         "Software smoke checks were finite: CPU two-step train loss 0.95849 → 0.89301, validation loss 0.82917 → 0.81090, and a fixed-batch 12-step overfit loss 1.48184 → 0.46100. These are execution checks, not benchmark results.",
-        "The production vector configuration has 1,530,664 total parameters and 917,960 student/predictor trainable parameters. LoRA trains 86,280 of 698,984 downstream parameters (12.34%); full fine-tuning trains all 714,632. Reusing projected patch indices removed duplicate sampling and restored measured spherical throughput from 48.4 to 87.3 clouds/s in the isolated B=32 benchmark; full epochs ran near 85.8 clouds/s."
+        "The production vector configuration has 1,530,664 total parameters and 917,960 student/predictor trainable parameters. A measured B=32, N=2048 forward/backward used about 2.79 GiB FP32 or 1.41 GiB with bfloat16 autocast on the test GPU; these are allocator- and platform-dependent measurements."
       ],
       "table": {
         "columns": [
-          "Downstream run",
-          "Pretraining source",
-          "Selected epoch",
-          "Canonical",
-          "Z rotation",
-          "SO(3)"
+          "Record",
+          "Epoch",
+          "Unrotated / validation",
+          "SO(3)",
+          "Status or provenance"
         ],
         "rows": [
           [
-            "Rank-8 LoRA",
-            "Random · epoch 176",
-            "88",
-            "82.25%",
-            "82.25%",
-            "82.29%"
+            "Pretraining snapshot used by LoRA",
+            "176",
+            "0.13405 loss",
+            "—",
+            "Immutable teacher source"
           ],
           [
-            "Rank-8 LoRA",
-            "Random · epoch 299",
-            "88",
-            "81.36%",
-            "81.44%",
-            "81.44%"
+            "Best pretraining at export",
+            "187",
+            "0.13295 loss",
+            "—",
+            "Current best through epoch 190"
           ],
           [
-            "Rank-8 LoRA",
-            "Spherical · epoch 103",
-            "91",
-            "82.82%",
-            "82.74%",
-            "82.78%"
+            "Best LoRA checkpoint at export",
+            "35",
+            "78.04%",
+            "78.04%",
+            "Selected by mean of both accuracies"
           ],
           [
-            "Full fine-tune",
-            "Random · epoch 299",
-            "283",
-            "84.81%",
-            "Not evaluated",
-            "84.72%"
+            "Latest LoRA epoch at export",
+            "38",
+            "77.71%",
+            "77.67%",
+            "Run active; not checkpoint-selected"
           ]
         ]
       },
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30"
+      "snapshot_date": "2026-10-23"
     },
     {
       "id": "controlled-benchmarks",
@@ -1102,7 +1304,7 @@ window.SITE_DATA = {
         "Integrations explicitly distinguish author-native paths from controlled adaptations."
       ],
       "source_id": "node-a",
-      "snapshot_date": "2026-10-30"
+      "snapshot_date": "2026-10-23"
     }
   ]
 };
