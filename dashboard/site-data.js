@@ -9,6 +9,11 @@ window.SITE_DATA = {
       "source_id": "so3-final",
       "snapshot_date": "2026-11-06",
       "title": "Joint invariant–equivariant VLM study"
+    },
+    {
+      "source_id": "sie-point-jepa-node",
+      "snapshot_date": "2026-11-13",
+      "title": "SIE-PointJEPA downstream results"
     }
   ],
   "experiments": [
@@ -1246,6 +1251,49 @@ window.SITE_DATA = {
       },
       "source_id": "node-a",
       "snapshot_date": "2026-10-23"
+    },
+    {
+      "id": "sie-point-jepa-downstream-rotation",
+      "tab_label": "SIE-PointJEPA",
+      "order": 65,
+      "eyebrow": "SIE-PointJEPA · LoRA downstream evaluation",
+      "title": "SO(3)-trained readouts retain accuracy across rotations",
+      "status": "complete",
+      "question": "Do LoRA classification and part-segmentation heads trained from the selected SIE-PointJEPA representation retain performance under unchanged, z-axis-rotated, and Haar-SO(3)-rotated inputs?",
+      "intuition": "SO(3)-augmented adaptation should make task predictions insensitive to pose even though the representation contains invariant-designated and rotation-sensitive channels. Robust downstream scores test the complete readout, not exact latent equivariance.",
+      "method": "Rank-8 LoRA adapters and task heads were trained from an immutable epoch-197 SIE-PointJEPA snapshot with SO(3)-rotated inputs. The best ModelNet40 epoch-31 and ShapeNetPart epoch-17 checkpoints were evaluated on all 2,468 test clouds and 2,874 test shapes using the same deterministic sampling under no rotation, uniform z-axis rotation, and fresh Haar SO(3).",
+      "takeaway": "ModelNet40 accuracy stayed within 0.16 percentage points across all protocols (86.79% canonical and 86.91% SO(3)). ShapeNetPart instance mIoU changed from 78.57% canonical to 78.24% SO(3), while point accuracy changed from 89.95% to 89.76%.",
+      "caveat": "These are single-seed results, and the best checkpoints were selected using the same test split's SO(3) score during training. Fresh rotations were used here, but the split was not held out from checkpoint selection, so absolute values are descriptive and potentially optimistic. Rotation-robust predictions do not prove exact representation invariance or equivariance.",
+      "metrics": [
+        {"label": "ModelNet40 SO(3) OA", "value": "86.91%", "detail": "Best LoRA checkpoint · epoch 31"},
+        {"label": "ShapeNetPart SO(3) instance mIoU", "value": "78.24%", "detail": "Best LoRA checkpoint · epoch 17"},
+        {"label": "ShapeNetPart SO(3) point accuracy", "value": "89.76%", "detail": "Full test split"}
+      ],
+      "chart": {
+        "type": "protocol-bars",
+        "title": "Best-checkpoint performance by test rotation",
+        "y_label": "Accuracy / instance mIoU (%)",
+        "series": [
+          {"name": "ModelNet40 accuracy", "none": 86.79, "z": 86.75, "so3": 86.91},
+          {"name": "ShapeNetPart instance mIoU", "none": 78.57, "z": 78.38, "so3": 78.24}
+        ]
+      },
+      "notes": [
+        "ShapeNetPart class mIoU was 72.84% canonical, 72.49% under z-axis rotations, and 72.23% under SO(3).",
+        "ModelNet40 cross-entropy was 0.5252 canonical, 0.5333 under z-axis rotations, and 0.5307 under SO(3).",
+        "The focused implementation suite passes 30 tests, including rotation algebra, correspondence, stop-gradient boundaries, LoRA freezing, z-axis rotation, and checkpoint restoration."
+      ],
+      "table": {
+        "columns": ["Dataset", "Metric", "No rotation", "Z rotation", "SO(3)"],
+        "rows": [
+          ["ModelNet40", "Accuracy", "86.79%", "86.75%", "86.91%"],
+          ["ShapeNetPart", "Point accuracy", "89.95%", "89.78%", "89.76%"],
+          ["ShapeNetPart", "Instance mIoU", "78.57%", "78.38%", "78.24%"],
+          ["ShapeNetPart", "Class mIoU", "72.84%", "72.49%", "72.23%"]
+        ]
+      },
+      "source_id": "sie-point-jepa-node",
+      "snapshot_date": "2026-11-13"
     },
     {
       "id": "controlled-benchmarks",
