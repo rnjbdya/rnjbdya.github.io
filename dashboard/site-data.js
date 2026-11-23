@@ -1256,44 +1256,54 @@ window.SITE_DATA = {
       "id": "sie-point-jepa-downstream-rotation",
       "tab_label": "SIE-PointJEPA",
       "order": 65,
-      "eyebrow": "SIE-PointJEPA · LoRA downstream evaluation",
-      "title": "SO(3)-trained readouts retain accuracy across rotations",
+      "eyebrow": "SIE-PointJEPA · complete downstream matrix",
+      "title": "Full and LoRA readouts remain stable across rotations",
       "status": "complete",
-      "question": "Do LoRA classification and part-segmentation heads trained from the selected SIE-PointJEPA representation retain performance under unchanged, z-axis-rotated, and Haar-SO(3)-rotated inputs?",
-      "intuition": "SO(3)-augmented adaptation should make task predictions insensitive to pose even though the representation contains invariant-designated and rotation-sensitive channels. Robust downstream scores test the complete readout, not exact latent equivariance.",
-      "method": "Rank-8 LoRA adapters and task heads were trained from the completed epoch-300 SIE-PointJEPA EMA checkpoint with SO(3)-rotated inputs. The best ModelNet40 epoch-91 and ShapeNetPart epoch-88 checkpoints were evaluated on all 2,468 test clouds and 2,874 test shapes using the same deterministic sampling under no rotation, uniform z-axis rotation, and fresh Haar SO(3).",
-      "takeaway": "ModelNet40 reached 87.88% canonical and 88.74% SO(3) accuracy. ShapeNetPart reached 79.74% canonical and 79.91% SO(3) instance mIoU. Relative to the epoch-197-source evaluation, SO(3) accuracy improved by 1.82 points and SO(3) instance mIoU by 1.67 points.",
+      "question": "How do full and rank-8 LoRA fine-tuning compare when downstream heads use only invariant features, only equivariant features, or their concatenation under canonical, z-axis, and fresh Haar SO(3) test rotations?",
+      "intuition": "The invariant and equivariant branches can carry different task information. Testing each branch and their concatenation with both adaptation regimes reveals whether rotation-robust predictions require one designated branch or benefit from end-to-end readout adaptation.",
+      "method": "All 12 dataset × tuning × representation combinations were trained from the completed epoch-300 SIE-PointJEPA checkpoint with SO(3)-rotated inputs. Each saved best checkpoint was evaluated on all 2,468 ModelNet40 test clouds or 2,874 ShapeNetPart test shapes under no rotation, uniform z-axis rotation, and Haar SO(3), using deterministic sampling and rotation seed 2026.",
+      "takeaway": "Full fine-tuning of equivariant features gives the strongest ModelNet40 SO(3) accuracy at 89.02%. Full fine-tuning of concatenated features gives the strongest ShapeNetPart SO(3) instance mIoU at 80.14%. Every setting is stable across the three test rotations, but no single representation wins every task.",
       "caveat": "These are single-seed results, and the best checkpoints were selected using the same test split and fixed SO(3) rotation seed reported here. The SO(3) values are not an independent post-selection test, so absolute values are descriptive and potentially optimistic. Rotation-robust predictions do not prove exact representation invariance or equivariance.",
       "metrics": [
-        {"label": "ModelNet40 SO(3) OA", "value": "88.74%", "detail": "Best LoRA checkpoint · epoch 91"},
-        {"label": "ShapeNetPart SO(3) instance mIoU", "value": "79.91%", "detail": "Best LoRA checkpoint · epoch 88"},
-        {"label": "ShapeNetPart SO(3) point accuracy", "value": "90.74%", "detail": "Full test split"}
+        {"label": "ModelNet40 SO(3) OA", "value": "89.02%", "detail": "Full fine-tune · z_equi · epoch 86"},
+        {"label": "ShapeNetPart SO(3) instance mIoU", "value": "80.14%", "detail": "Full fine-tune · z_full · epoch 79"},
+        {"label": "ShapeNetPart SO(3) point accuracy", "value": "90.96%", "detail": "Full fine-tune · z_full"}
       ],
       "chart": {
         "type": "protocol-bars",
-        "title": "Best-checkpoint performance by test rotation",
+        "title": "Best full and LoRA results by test rotation",
         "y_label": "Accuracy / instance mIoU (%)",
         "series": [
-          {"name": "ModelNet40 accuracy", "none": 87.88, "z": 88.37, "so3": 88.74},
-          {"name": "ShapeNetPart instance mIoU", "none": 79.74, "z": 79.90, "so3": 79.91}
+          {"name": "ModelNet40 · full z_equi", "none": 88.13, "z": 88.57, "so3": 89.02},
+          {"name": "ModelNet40 · LoRA z_full", "none": 87.88, "z": 88.37, "so3": 88.74},
+          {"name": "ShapeNetPart · full z_full", "none": 80.06, "z": 80.05, "so3": 80.14},
+          {"name": "ShapeNetPart · LoRA z_full", "none": 79.74, "z": 79.90, "so3": 79.91}
         ]
       },
       "notes": [
-        "ShapeNetPart class mIoU was 75.16% canonical, 75.30% under z-axis rotations, and 75.51% under SO(3).",
-        "ModelNet40 cross-entropy was 0.5510 canonical, 0.5407 under z-axis rotations, and 0.5509 under SO(3).",
-        "The focused implementation suite passes 30 tests, including rotation algebra, correspondence, stop-gradient boundaries, LoRA freezing, z-axis rotation, and checkpoint restoration."
+        "The largest within-row primary-metric rotation range is 0.61 points on ModelNet40 and 0.17 points on ShapeNetPart.",
+        "Full z_inv gives the strongest ShapeNetPart SO(3) class mIoU at 76.35%, while full z_full gives the strongest instance mIoU and point accuracy.",
+        "The focused implementation suite passes 34 tests, including rotation algebra, correspondence, stop-gradient boundaries, LoRA freezing, z-axis rotation, and checkpoint restoration."
       ],
       "table": {
-        "columns": ["Dataset", "Metric", "No rotation", "Z rotation", "SO(3)"],
+        "columns": ["Dataset", "Fine-tune", "Features", "No rotation", "Z rotation", "SO(3)"],
         "rows": [
-          ["ModelNet40", "Accuracy", "87.88%", "88.37%", "88.74%"],
-          ["ShapeNetPart", "Point accuracy", "90.63%", "90.73%", "90.74%"],
-          ["ShapeNetPart", "Instance mIoU", "79.74%", "79.90%", "79.91%"],
-          ["ShapeNetPart", "Class mIoU", "75.16%", "75.30%", "75.51%"]
+          ["ModelNet40 accuracy", "LoRA", "z_inv", "88.61%", "88.01%", "88.41%"],
+          ["ModelNet40 accuracy", "LoRA", "z_equi", "88.09%", "88.25%", "88.21%"],
+          ["ModelNet40 accuracy", "LoRA", "z_full", "87.88%", "88.37%", "88.74%"],
+          ["ModelNet40 accuracy", "Full", "z_inv", "87.84%", "88.09%", "88.33%"],
+          ["ModelNet40 accuracy", "Full", "z_equi", "88.13%", "88.57%", "89.02%"],
+          ["ModelNet40 accuracy", "Full", "z_full", "87.93%", "88.53%", "88.53%"],
+          ["ShapeNetPart instance mIoU", "LoRA", "z_inv", "79.69%", "79.62%", "79.77%"],
+          ["ShapeNetPart instance mIoU", "LoRA", "z_equi", "79.83%", "79.91%", "79.86%"],
+          ["ShapeNetPart instance mIoU", "LoRA", "z_full", "79.74%", "79.90%", "79.91%"],
+          ["ShapeNetPart instance mIoU", "Full", "z_inv", "79.94%", "79.98%", "80.07%"],
+          ["ShapeNetPart instance mIoU", "Full", "z_equi", "80.06%", "79.92%", "80.01%"],
+          ["ShapeNetPart instance mIoU", "Full", "z_full", "80.06%", "80.05%", "80.14%"]
         ]
       },
       "source_id": "sie-point-jepa-node",
-      "snapshot_date": "2026-11-15"
+      "snapshot_date": "2026-11-23"
     },
     {
       "id": "controlled-benchmarks",
