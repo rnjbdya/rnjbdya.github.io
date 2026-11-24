@@ -1257,17 +1257,17 @@ window.SITE_DATA = {
       "tab_label": "SIE-PointJEPA",
       "order": 65,
       "eyebrow": "SIE-PointJEPA · complete downstream matrix",
-      "title": "Full and LoRA readouts remain stable across rotations",
-      "status": "complete",
+      "title": "Historical downstream matrix is superseded",
+      "status": "superseded",
       "question": "How do full and rank-8 LoRA fine-tuning compare when downstream heads use only invariant features, only equivariant features, or their concatenation under canonical, z-axis, and fresh Haar SO(3) test rotations?",
       "intuition": "The invariant and equivariant branches can carry different task information. Testing each branch and their concatenation with both adaptation regimes reveals whether rotation-robust predictions require one designated branch or benefit from end-to-end readout adaptation.",
       "method": "All 12 dataset × tuning × representation combinations were trained from the completed epoch-300 SIE-PointJEPA checkpoint with SO(3)-rotated inputs. Each saved best checkpoint was evaluated on all 2,468 ModelNet40 test clouds or 2,874 ShapeNetPart test shapes under no rotation, uniform z-axis rotation, and Haar SO(3), using deterministic sampling and rotation seed 2026.",
-      "takeaway": "Full fine-tuning of equivariant features gives the strongest ModelNet40 SO(3) accuracy at 89.02%. Full fine-tuning of concatenated features gives the strongest ShapeNetPart SO(3) instance mIoU at 80.14%. Every setting is stable across the three test rotations, but no single representation wins every task.",
-      "caveat": "These are single-seed results, and the best checkpoints were selected using the same test split and fixed SO(3) rotation seed reported here. The SO(3) values are not an independent post-selection test, so absolute values are descriptive and potentially optimistic. Rotation-robust predictions do not prove exact representation invariance or equivariance.",
+      "takeaway": "These measurements are retained only as historical diagnostics. The trainer used the official test split for per-epoch fixed-seed SO(3) checkpoint selection, so none of the values qualify as final benchmark results. Replacement experiments use disjoint validation data, three training seeds, and fresh multi-seed test rotations.",
+      "caveat": "INVALID FOR FINAL REPORTING: best checkpoints were selected using labels and fixed SO(3) rotations from the same official test split reported here. Test labels did not receive gradients, but repeated test-based model selection can inflate results. Rotation-robust predictions do not prove exact representation invariance or equivariance.",
       "metrics": [
-        {"label": "ModelNet40 SO(3) OA", "value": "89.02%", "detail": "Full fine-tune · z_equi · epoch 86"},
-        {"label": "ShapeNetPart SO(3) instance mIoU", "value": "80.14%", "detail": "Full fine-tune · z_full · epoch 79"},
-        {"label": "ShapeNetPart SO(3) point accuracy", "value": "90.96%", "detail": "Full fine-tune · z_full"}
+        {"label": "ModelNet40 SO(3) OA", "value": "89.02%", "detail": "Historical · test-selected · do not report"},
+        {"label": "ShapeNetPart SO(3) instance mIoU", "value": "80.14%", "detail": "Historical · test-selected · do not report"},
+        {"label": "Replacement protocol", "value": "3 seeds", "detail": "Disjoint validation · 3 test rotations per mode"}
       ],
       "chart": {
         "type": "protocol-bars",
@@ -1281,7 +1281,7 @@ window.SITE_DATA = {
         ]
       },
       "notes": [
-        "The largest within-row primary-metric rotation range is 0.61 points on ModelNet40 and 0.17 points on ShapeNetPart.",
+        "The entire table is historical and invalid for final benchmark reporting because the official test split influenced checkpoint selection.",
         "Full z_inv gives the strongest ShapeNetPart SO(3) class mIoU at 76.35%, while full z_full gives the strongest instance mIoU and point accuracy.",
         "The focused implementation suite passes 34 tests, including rotation algebra, correspondence, stop-gradient boundaries, LoRA freezing, z-axis rotation, and checkpoint restoration."
       ],
@@ -1303,7 +1303,7 @@ window.SITE_DATA = {
         ]
       },
       "source_id": "sie-point-jepa-node",
-      "snapshot_date": "2026-11-23"
+      "snapshot_date": "2026-11-24"
     },
     {
       "id": "controlled-benchmarks",
