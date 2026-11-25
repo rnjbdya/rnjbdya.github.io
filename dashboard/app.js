@@ -43,6 +43,59 @@
       </div>`;
   }
 
+  function architectureMarkup(architecture) {
+    if (!architecture?.streams?.length) return "";
+    return `
+      <section class="research-visual" aria-labelledby="architecture-title">
+        <div class="visual-intro">
+          <span class="visual-number">01</span>
+          <div><p class="visual-kicker">The mechanism</p><h4 id="architecture-title">${escapeHTML(architecture.title)}</h4><p>${escapeHTML(architecture.summary)}</p></div>
+        </div>
+        <div class="architecture-flow">
+          <div class="architecture-node input-node"><small>Input</small><strong>${escapeHTML(architecture.input)}</strong></div>
+          <div class="split-connector" aria-hidden="true"><span></span><span></span></div>
+          <div class="stream-grid">
+            ${architecture.streams.map(stream => `<div class="architecture-node stream-node ${escapeHTML(stream.tone)}"><small>${escapeHTML(stream.symbol)}</small><strong>${escapeHTML(stream.title)}</strong><span>${escapeHTML(stream.detail)}</span></div>`).join("")}
+          </div>
+          <div class="merge-connector" aria-hidden="true"><span></span></div>
+          <div class="architecture-node fusion-node"><small>${escapeHTML(architecture.fusion.symbol)}</small><strong>${escapeHTML(architecture.fusion.title)}</strong><span>${escapeHTML(architecture.fusion.detail)}</span></div>
+          <div class="down-arrow" aria-hidden="true">↓</div>
+          <div class="architecture-node output-node"><small>Grounding score</small><strong>${escapeHTML(architecture.output)}</strong></div>
+        </div>
+        <div class="equation-strip"><code>${escapeHTML(architecture.equation)}</code><span>${escapeHTML(architecture.equation_note)}</span></div>
+      </section>`;
+  }
+
+  function journeyMarkup(journey) {
+    if (!journey?.steps?.length) return "";
+    return `
+      <section class="research-visual" aria-labelledby="journey-title">
+        <div class="visual-intro">
+          <span class="visual-number">02</span>
+          <div><p class="visual-kicker">Why each experiment existed</p><h4 id="journey-title">${escapeHTML(journey.title)}</h4><p>${escapeHTML(journey.summary)}</p></div>
+        </div>
+        <div class="journey-grid">${journey.steps.map((step, index) => `
+          <article class="journey-step ${escapeHTML(step.tone || "")}">
+            <span>${String(index + 1).padStart(2, "0")}</span>
+            <h5>${escapeHTML(step.title)}</h5>
+            <p>${escapeHTML(step.detail)}</p>
+            <strong>${escapeHTML(step.result)}</strong>
+          </article>`).join("")}</div>
+      </section>`;
+  }
+
+  function claimsMarkup(claims) {
+    if (!claims?.length) return "";
+    return `
+      <section class="research-visual" aria-labelledby="claims-title">
+        <div class="visual-intro">
+          <span class="visual-number">04</span>
+          <div><p class="visual-kicker">Scientific conclusion</p><h4 id="claims-title">What the evidence does—and does not—support</h4></div>
+        </div>
+        <div class="claims-grid">${claims.map(claim => `<article class="claim ${escapeHTML(claim.status)}"><span>${escapeHTML(claim.status)}</span><h5>${escapeHTML(claim.title)}</h5><p>${escapeHTML(claim.detail)}</p></article>`).join("")}</div>
+      </section>`;
+  }
+
   function renderExperiments() {
     const host = document.querySelector("#experiment-list");
     host.innerHTML = data.experiments.map((experiment, index) => `
@@ -66,13 +119,17 @@
           <div class="story-block"><h4>Snapshot</h4><p>${escapeHTML(experiment.snapshot_date)} · sanitized bundle ${escapeHTML(experiment.source_id)}</p></div>
         </div>
         ${metricMarkup(experiment.metrics)}
+        ${architectureMarkup(experiment.architecture)}
+        ${journeyMarkup(experiment.journey)}
         <div class="visual-panel">
           <div class="visual-topline">
+            ${experiment.architecture ? `<span class="visual-number">03</span>` : ""}
             <h4>${escapeHTML(experiment.chart?.title || "Result view")}</h4>
             <span class="chart-hint">Hover or focus for exact values</span>
           </div>
           <div class="chart" data-chart-for="${escapeHTML(experiment.id)}"></div>
         </div>
+        ${claimsMarkup(experiment.claims)}
         ${experiment.notes?.length ? `<ul class="notes-list">${experiment.notes.map(note => `<li>${escapeHTML(note)}</li>`).join("")}</ul>` : ""}
         ${tableMarkup(experiment.table)}
       </article>`).join("");
@@ -173,6 +230,34 @@
     else if (chart.type === "head-bars") renderHeadBars(host, chart);
     else if (chart.type === "progress") renderProgress(host, chart);
     else if (chart.type === "matrix") renderMatrix(host, chart);
+    else if (chart.type === "paired-bars") renderPairedBars(host, chart);
+  }
+
+  function renderPairedBars(host, chart) {
+    const width = 820;
+    const height = 360;
+    const margin = { top: 34, right: 34, bottom: 86, left: 62 };
+    const max = chart.max || 100;
+    const yAt = value => margin.top + (max - value) * (height - margin.top - margin.bottom) / max;
+    const groupWidth = (width - margin.left - margin.right) / chart.groups.length;
+    const barWidth = Math.min(72, groupWidth * 0.28);
+    const ticks = [0, 20, 40, 60, 80, 100].filter(value => value <= max);
+    const grid = ticks.map(value => `<line class="grid-line" x1="${margin.left}" y1="${yAt(value)}" x2="${width - margin.right}" y2="${yAt(value)}"/><text x="${margin.left - 10}" y="${yAt(value) + 4}" text-anchor="end">${value}%</text>`).join("");
+    const bars = chart.groups.map((group, index) => {
+      const center = margin.left + groupWidth * (index + 0.5);
+      const learnedX = center - barWidth - 4;
+      const uniformX = center + 4;
+      const learnedY = yAt(group.learned);
+      const uniformY = yAt(group.uniform);
+      return `<g tabindex="0"><title>${escapeHTML(group.label)} · learned ${group.learned.toFixed(2)}%, uniform ${group.uniform.toFixed(2)}%</title>
+        <rect x="${learnedX}" y="${learnedY}" width="${barWidth}" height="${height - margin.bottom - learnedY}" rx="6" fill="${colors[0]}"/>
+        <rect x="${uniformX}" y="${uniformY}" width="${barWidth}" height="${height - margin.bottom - uniformY}" rx="6" fill="${colors[3]}"/>
+        <text x="${learnedX + barWidth / 2}" y="${learnedY - 8}" text-anchor="middle" font-weight="700">${group.learned.toFixed(1)}</text>
+        <text x="${uniformX + barWidth / 2}" y="${uniformY - 8}" text-anchor="middle" font-weight="700">${group.uniform.toFixed(1)}</text>
+        <text x="${center}" y="${height - 55}" text-anchor="middle">${escapeHTML(group.label)}</text>
+      </g>`;
+    }).join("");
+    host.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHTML(chart.title)}">${grid}${bars}<text x="${margin.left}" y="18" font-weight="700">Accuracy ↑</text></svg><div class="legend"><span><i style="background:${colors[0]}"></i>Learned attention</span><span><i style="background:${colors[3]}"></i>Uniform pooling</span></div><p class="chart-conclusion">${escapeHTML(chart.conclusion)}</p>`;
   }
 
   function renderProtocolBars(host, chart) {
@@ -278,10 +363,10 @@
 
   function renderHeadlineMetrics() {
     const items = [
-      ["92.50%", "Best saved canonical ModelNet40 accuracy"],
-      ["44 dims", "Needed for 90% of Point-MAE rotation energy"],
-      ["10 seeds", "Dense latent-action trajectory study"],
-      ["6.9e−12", "Known-latent action error validates the analysis"]
+      ["78.13 vs 78.91%", "Structured: learned attention vs uniform pooling"],
+      ["62.50 vs 65.63%", "Text-driven: learned attention vs uniform pooling"],
+      ["100%", "Joint-rotation and common-translation consistency"],
+      ["No gain", "Learned attention did not beat uniform pooling"]
     ];
     document.querySelector("#headline-metrics").innerHTML = items.map(([value, label]) => `<div class="headline-stat"><strong>${escapeHTML(value)}</strong><span>${escapeHTML(label)}</span></div>`).join("");
   }
