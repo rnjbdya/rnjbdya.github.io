@@ -24,6 +24,11 @@ window.SITE_DATA = {
       "source_id": "sie-seed2026-final-test",
       "snapshot_date": "2026-11-25",
       "title": "SIE-PointJEPA clean downstream evaluation"
+    },
+    {
+      "source_id": "sie-controlled-screen-seed2026",
+      "snapshot_date": "2026-11-26",
+      "title": "SIE-PointJEPA controlled downstream screening"
     }
   ],
   "experiments": [
@@ -1841,36 +1846,270 @@ window.SITE_DATA = {
       "takeaway": "LoRA with combined features led ModelNet40 at 88.11% SO(3) accuracy. Full fine-tuning with invariant features reached 79.99% ShapeNetPart instance mIoU and 76.14% class mIoU under SO(3).",
       "caveat": "This is one training seed. Plus/minus values are standard deviations over three test-rotation seeds, not training-seed uncertainty.",
       "metrics": [
-        {"label": "ModelNet40 SO(3)", "value": "88.11 ± 0.13%", "detail": "LoRA · combined"},
-        {"label": "ShapeNet SO(3) inst.", "value": "79.99 ± 0.04%", "detail": "Full · invariant"},
-        {"label": "ShapeNet SO(3) class", "value": "76.14 ± 0.15%", "detail": "Full · invariant"}
+        {
+          "label": "ModelNet40 SO(3)",
+          "value": "88.11 ± 0.13%",
+          "detail": "LoRA · combined"
+        },
+        {
+          "label": "ShapeNet SO(3) inst.",
+          "value": "79.99 ± 0.04%",
+          "detail": "Full · invariant"
+        },
+        {
+          "label": "ShapeNet SO(3) class",
+          "value": "76.14 ± 0.15%",
+          "detail": "Full · invariant"
+        }
       ],
       "chart": {
         "type": "progress",
         "title": "SO(3) official-test performance · seed 2026",
         "series": [
-          {"name": "ModelNet · LoRA combined", "value": 88.1145, "total": 100, "detail": "accuracy"},
-          {"name": "ShapeNet · Full invariant", "value": 79.9948, "total": 100, "detail": "instance mIoU"},
-          {"name": "ShapeNet · Full invariant", "value": 76.1377, "total": 100, "detail": "class mIoU"}
+          {
+            "name": "ModelNet · LoRA combined",
+            "value": 88.1145,
+            "total": 100,
+            "detail": "accuracy"
+          },
+          {
+            "name": "ShapeNet · Full invariant",
+            "value": 79.9948,
+            "total": 100,
+            "detail": "instance mIoU"
+          },
+          {
+            "name": "ShapeNet · Full invariant",
+            "value": 76.1377,
+            "total": 100,
+            "detail": "class mIoU"
+          }
         ]
       },
       "table": {
-        "columns": ["Tuning", "Representation", "ModelNet SO(3)", "ShapeNet inst.", "ShapeNet class"],
+        "columns": [
+          "Tuning",
+          "Representation",
+          "ModelNet SO(3)",
+          "ShapeNet inst.",
+          "ShapeNet class"
+        ],
         "rows": [
-          ["Linear", "Invariant", "75.51 ± 0.31%", "60.25 ± 0.06%", "59.06 ± 0.13%"],
-          ["Linear", "Equivariant", "83.20 ± 0.22%", "68.56 ± 0.03%", "64.38 ± 0.12%"],
-          ["Linear", "Combined", "84.74 ± 0.11%", "71.08 ± 0.07%", "66.53 ± 0.18%"],
-          ["LoRA", "Invariant", "86.68 ± 0.25%", "79.57 ± 0.06%", "75.15 ± 0.14%"],
-          ["LoRA", "Equivariant", "87.67 ± 0.16%", "79.50 ± 0.04%", "74.86 ± 0.19%"],
-          ["LoRA", "Combined", "88.11 ± 0.13%", "79.68 ± 0.11%", "75.26 ± 0.22%"],
-          ["Full", "Invariant", "87.84 ± 0.14%", "79.99 ± 0.04%", "76.14 ± 0.15%"],
-          ["Full", "Equivariant", "87.26 ± 0.22%", "79.94 ± 0.02%", "76.08 ± 0.08%"],
-          ["Full", "Combined", "87.71 ± 0.13%", "79.91 ± 0.09%", "75.81 ± 0.25%"]
+          [
+            "Linear",
+            "Invariant",
+            "75.51 ± 0.31%",
+            "60.25 ± 0.06%",
+            "59.06 ± 0.13%"
+          ],
+          [
+            "Linear",
+            "Equivariant",
+            "83.20 ± 0.22%",
+            "68.56 ± 0.03%",
+            "64.38 ± 0.12%"
+          ],
+          [
+            "Linear",
+            "Combined",
+            "84.74 ± 0.11%",
+            "71.08 ± 0.07%",
+            "66.53 ± 0.18%"
+          ],
+          [
+            "LoRA",
+            "Invariant",
+            "86.68 ± 0.25%",
+            "79.57 ± 0.06%",
+            "75.15 ± 0.14%"
+          ],
+          [
+            "LoRA",
+            "Equivariant",
+            "87.67 ± 0.16%",
+            "79.50 ± 0.04%",
+            "74.86 ± 0.19%"
+          ],
+          [
+            "LoRA",
+            "Combined",
+            "88.11 ± 0.13%",
+            "79.68 ± 0.11%",
+            "75.26 ± 0.22%"
+          ],
+          [
+            "Full",
+            "Invariant",
+            "87.84 ± 0.14%",
+            "79.99 ± 0.04%",
+            "76.14 ± 0.15%"
+          ],
+          [
+            "Full",
+            "Equivariant",
+            "87.26 ± 0.22%",
+            "79.94 ± 0.02%",
+            "76.08 ± 0.08%"
+          ],
+          [
+            "Full",
+            "Combined",
+            "87.71 ± 0.13%",
+            "79.91 ± 0.09%",
+            "75.81 ± 0.25%"
+          ]
         ]
       },
       "source_id": "sie-seed2026-final-test",
       "snapshot_date": "2026-11-25"
+    },
+    {
+      "id": "sie-controlled-downstream-validation-seed2026",
+      "tab_label": "SIE controlled screen",
+      "order": 67,
+      "eyebrow": "ModelNet40 + ShapeNetPart · validation only · seed 2026",
+      "title": "Three-neighbor interpolation isolates the primary segmentation bottleneck",
+      "status": "preliminary",
+      "question": "Which inexpensive downstream changes improve SIE-PointJEPA while preserving the original pretrained representation and rotation protocol?",
+      "intuition": "Frozen-head and one-factor segmentation comparisons can distinguish representation limitations from downstream pooling, upsampling, loss, and decoder bottlenecks before changing pretraining.",
+      "method": "The fixed pretrained checkpoint was evaluated with held-out training/validation data only. Classification used frozen invariant, equivariant, and combined features with linear and nonlinear heads. Seven 64-patch ShapeNetPart arms used the same seed, LoRA budget, optimizer, split, 100-epoch budget, SO(3) augmentation, and mean validation selection over rotation seeds 82001, 82002, and 82003. S1--S4 changed one factor each; S5 combined the inexpensive changes; S6 changed only the local feature source to selected intermediate encoder layers.",
+      "takeaway": "Three-neighbor inverse-distance interpolation raised ShapeNetPart validation instance mIoU from 80.95% to 83.73% (+2.77 points). FPS, category-valid loss, and branch normalization were individually neutral. The intermediate decoder reached 83.22%, below the simpler combined decoder while using substantially more memory. Frozen ModelNet40 screening peaked at 85.84% with a nonlinear MLP-512 head, only 0.14 points above the raw combined linear probe.",
+      "caveat": "These are single-training-seed validation results, not official-test claims. The classification MLP is a nonlinear probe. Multi-seed confirmation is required before freezing a configuration or accessing the official test splits.",
+      "metrics": [
+        {
+          "label": "ShapeNet S2 inst. mIoU",
+          "value": "83.73%",
+          "detail": "+2.77 pp vs S0 validation"
+        },
+        {
+          "label": "Best frozen ModelNet",
+          "value": "85.84%",
+          "detail": "MLP-512 combined · validation"
+        },
+        {
+          "label": "Stable FPS overlap",
+          "value": "100%",
+          "detail": "26.9% for legacy FPS"
+        }
+      ],
+      "chart": {
+        "type": "progress",
+        "title": "ShapeNetPart SO(3) validation instance mIoU",
+        "series": [
+          {
+            "name": "S0 protocol control",
+            "value": 80.9542,
+            "total": 100,
+            "detail": "representation decoder"
+          },
+          {
+            "name": "S1 stable FPS",
+            "value": 80.9295,
+            "total": 100,
+            "detail": "FPS only"
+          },
+          {
+            "name": "S2 3-NN interpolation",
+            "value": 83.7259,
+            "total": 100,
+            "detail": "best"
+          },
+          {
+            "name": "S3 valid CE",
+            "value": 80.9847,
+            "total": 100,
+            "detail": "loss only"
+          },
+          {
+            "name": "S4 branch normalization",
+            "value": 80.8156,
+            "total": 100,
+            "detail": "normalization only"
+          },
+          {
+            "name": "S5 inexpensive combined",
+            "value": 83.5218,
+            "total": 100,
+            "detail": "representation decoder"
+          },
+          {
+            "name": "S6 intermediate decoder",
+            "value": 83.2222,
+            "total": 100,
+            "detail": "higher memory"
+          }
+        ]
+      },
+      "table": {
+        "columns": [
+          "Arm",
+          "Intervention",
+          "Instance mIoU",
+          "Delta vs S0",
+          "Class mIoU",
+          "Peak GPU memory"
+        ],
+        "rows": [
+          [
+            "S0",
+            "Protocol control",
+            "80.95%",
+            "control",
+            "76.03%",
+            "970 MiB"
+          ],
+          [
+            "S1",
+            "Stable FPS",
+            "80.93%",
+            "-0.02 pp",
+            "76.22%",
+            "970 MiB"
+          ],
+          [
+            "S2",
+            "3-NN interpolation",
+            "83.73%",
+            "+2.77 pp",
+            "78.45%",
+            "2,236 MiB"
+          ],
+          [
+            "S3",
+            "Category-valid CE",
+            "80.98%",
+            "+0.03 pp",
+            "75.81%",
+            "969 MiB"
+          ],
+          [
+            "S4",
+            "Branch normalization",
+            "80.82%",
+            "-0.14 pp",
+            "76.00%",
+            "970 MiB"
+          ],
+          [
+            "S5",
+            "Combined inexpensive",
+            "83.52%",
+            "+2.57 pp",
+            "78.14%",
+            "2,239 MiB"
+          ],
+          [
+            "S6",
+            "Intermediate decoder",
+            "83.22%",
+            "+2.27 pp",
+            "77.45%",
+            "3,852 MiB"
+          ]
+        ]
+      },
+      "source_id": "sie-controlled-screen-seed2026",
+      "snapshot_date": "2026-11-26"
     }
   ]
 };
-
