@@ -19,6 +19,11 @@ window.SITE_DATA = {
       "source_id": "sie-feature-rotation",
       "snapshot_date": "2026-11-25",
       "title": "SIE feature-space rotation analysis"
+    },
+    {
+      "source_id": "sie-seed2026-final-test",
+      "snapshot_date": "2026-11-25",
+      "title": "SIE-PointJEPA clean downstream evaluation"
     }
   ],
   "experiments": [
@@ -1822,6 +1827,49 @@ window.SITE_DATA = {
       ],
       "source_id": "node-a",
       "snapshot_date": "2026-10-23"
+    },
+    {
+      "id": "sie-seed2026-downstream-final-test",
+      "tab_label": "Clean downstream",
+      "order": 66,
+      "eyebrow": "ModelNet40 + ShapeNetPart · seed 2026",
+      "title": "Validation-selected SIE models remain stable under unseen rotations",
+      "status": "preliminary",
+      "question": "How do invariant, equivariant, and combined representations compare after linear, LoRA, and full fine-tuning on untouched official test sets?",
+      "intuition": "Validation-only checkpoint selection and paired official-test rotations make tuning modes and representation branches directly comparable.",
+      "method": "Each checkpoint was selected by SO(3) performance on a disjoint validation partition. The selected seed-2026 checkpoint was then evaluated on all 2,468 ModelNet40 test clouds and 2,874 ShapeNetPart test shapes under identity and three previously unused z-axis and Haar-uniform SO(3) seeds.",
+      "takeaway": "LoRA with combined features led ModelNet40 at 88.11% SO(3) accuracy. Full fine-tuning with invariant features reached 79.99% ShapeNetPart instance mIoU and 76.14% class mIoU under SO(3).",
+      "caveat": "This is one training seed. Plus/minus values are standard deviations over three test-rotation seeds, not training-seed uncertainty.",
+      "metrics": [
+        {"label": "ModelNet40 SO(3)", "value": "88.11 ± 0.13%", "detail": "LoRA · combined"},
+        {"label": "ShapeNet SO(3) inst.", "value": "79.99 ± 0.04%", "detail": "Full · invariant"},
+        {"label": "ShapeNet SO(3) class", "value": "76.14 ± 0.15%", "detail": "Full · invariant"}
+      ],
+      "chart": {
+        "type": "progress",
+        "title": "SO(3) official-test performance · seed 2026",
+        "series": [
+          {"name": "ModelNet · LoRA combined", "value": 88.1145, "total": 100, "detail": "accuracy"},
+          {"name": "ShapeNet · Full invariant", "value": 79.9948, "total": 100, "detail": "instance mIoU"},
+          {"name": "ShapeNet · Full invariant", "value": 76.1377, "total": 100, "detail": "class mIoU"}
+        ]
+      },
+      "table": {
+        "columns": ["Tuning", "Representation", "ModelNet SO(3)", "ShapeNet inst.", "ShapeNet class"],
+        "rows": [
+          ["Linear", "Invariant", "75.51 ± 0.31%", "60.25 ± 0.06%", "59.06 ± 0.13%"],
+          ["Linear", "Equivariant", "83.20 ± 0.22%", "68.56 ± 0.03%", "64.38 ± 0.12%"],
+          ["Linear", "Combined", "84.74 ± 0.11%", "71.08 ± 0.07%", "66.53 ± 0.18%"],
+          ["LoRA", "Invariant", "86.68 ± 0.25%", "79.57 ± 0.06%", "75.15 ± 0.14%"],
+          ["LoRA", "Equivariant", "87.67 ± 0.16%", "79.50 ± 0.04%", "74.86 ± 0.19%"],
+          ["LoRA", "Combined", "88.11 ± 0.13%", "79.68 ± 0.11%", "75.26 ± 0.22%"],
+          ["Full", "Invariant", "87.84 ± 0.14%", "79.99 ± 0.04%", "76.14 ± 0.15%"],
+          ["Full", "Equivariant", "87.26 ± 0.22%", "79.94 ± 0.02%", "76.08 ± 0.08%"],
+          ["Full", "Combined", "87.71 ± 0.13%", "79.91 ± 0.09%", "75.81 ± 0.25%"]
+        ]
+      },
+      "source_id": "sie-seed2026-final-test",
+      "snapshot_date": "2026-11-25"
     }
   ]
 };
