@@ -6,29 +6,9 @@ window.SITE_DATA = {
       "title": "Current server results"
     },
     {
-      "source_id": "sie-classification-confirmation",
+      "source_id": "sie-c1-c2-validation-20261127",
       "snapshot_date": "2026-11-27",
-      "title": "SIE-PointJEPA classification confirmation"
-    },
-    {
-      "source_id": "sie-controlled-screen-seed2026",
-      "snapshot_date": "2026-11-26",
-      "title": "SIE-PointJEPA controlled downstream screening"
-    },
-    {
-      "source_id": "sie-feature-rotation",
-      "snapshot_date": "2026-11-25",
-      "title": "SIE feature-space rotation analysis"
-    },
-    {
-      "source_id": "sie-point-jepa-node",
-      "snapshot_date": "2026-11-15",
-      "title": "SIE-PointJEPA downstream results"
-    },
-    {
-      "source_id": "sie-seed2026-final-test",
-      "snapshot_date": "2026-11-25",
-      "title": "SIE-PointJEPA clean downstream evaluation"
+      "title": "SIE-PointJEPA cached recipe and rotation ensemble"
     },
     {
       "source_id": "so3-final",
@@ -1273,889 +1253,112 @@ window.SITE_DATA = {
       "snapshot_date": "2026-10-23"
     },
     {
-      "id": "sie-direct-rotation-invariance",
-      "tab_label": "Direct invariance",
-      "order": 61,
-      "eyebrow": "ModelNet40 · frozen feature geometry",
-      "title": "The designated invariant branch is nearly rotation-stable",
-      "status": "complete",
-      "question": "Do the frozen invariant and equivariant SIE-PointJEPA feature vectors respond differently when the same cloud is rotated?",
-      "intuition": "A successful split should keep the invariant feature nearly fixed while allowing the equivariant feature to move with pose. Reusing one patch layout across views isolates feature response from FPS/KNN resampling.",
-      "method": "The final epoch-300 SIE-PointJEPA checkpoint encoded all 2,468 ModelNet40 test clouds at 0, 30, 60, 90, 120, 150, and 180 degree z-axis rotations. Mean-pooled patch features were compared to the canonical feature with cosine similarity and normalized L2 drift. Every rotated view reused the canonical cloud's patch identities.",
-      "takeaway": "At 180 degrees, invariant-feature cosine remained 0.999954 with 0.00952 normalized drift, while equivariant-feature cosine fell to 0.975837 with 0.19496 drift. The two branches therefore show the intended qualitative separation, although neither is mathematically exact.",
-      "caveat": "This is one pretrained checkpoint and one fixed rotation axis. The analysis uses mean-pooled features, so it does not establish patchwise equivariance, a group representation, or behavior under every SO(3) rotation.",
-      "metrics": [
-        {
-          "label": "Invariant cosine · 180°",
-          "value": "0.999954",
-          "detail": "2,468 test clouds"
-        },
-        {
-          "label": "Invariant drift · 180°",
-          "value": "0.00952",
-          "detail": "Normalized L2"
-        },
-        {
-          "label": "Equivariant drift · 180°",
-          "value": "0.19496",
-          "detail": "Normalized L2"
-        }
-      ],
-      "chart": {
-        "type": "depth-lines",
-        "title": "Cosine similarity to canonical orientation",
-        "x_label": "Z-axis rotation (degrees)",
-        "x": [
-          "0",
-          "30",
-          "60",
-          "90",
-          "120",
-          "150",
-          "180"
-        ],
-        "series": [
-          {
-            "name": "Invariant",
-            "values": [
-              0.99999999,
-              0.9999584,
-              0.99995063,
-              0.99995574,
-              0.9999436,
-              0.99994338,
-              0.99995376
-            ]
-          },
-          {
-            "name": "Equivariant",
-            "values": [
-              0.99999999,
-              0.99705315,
-              0.99190865,
-              0.9857487,
-              0.98045739,
-              0.97697971,
-              0.97583684
-            ]
-          }
-        ]
-      },
-      "table": {
-        "columns": [
-          "Rotation",
-          "Invariant cosine",
-          "Invariant drift",
-          "Equivariant cosine",
-          "Equivariant drift"
-        ],
-        "rows": [
-          [
-            "0°",
-            "1.000000",
-            "0.000000",
-            "1.000000",
-            "0.000000"
-          ],
-          [
-            "30°",
-            "0.999958",
-            "0.008998",
-            "0.997053",
-            "0.072715"
-          ],
-          [
-            "60°",
-            "0.999951",
-            "0.009810",
-            "0.991909",
-            "0.117801"
-          ],
-          [
-            "90°",
-            "0.999956",
-            "0.009327",
-            "0.985749",
-            "0.154058"
-          ],
-          [
-            "120°",
-            "0.999944",
-            "0.010498",
-            "0.980457",
-            "0.178194"
-          ],
-          [
-            "150°",
-            "0.999943",
-            "0.010510",
-            "0.976980",
-            "0.191324"
-          ],
-          [
-            "180°",
-            "0.999954",
-            "0.009524",
-            "0.975837",
-            "0.194961"
-          ]
-        ]
-      },
-      "source_id": "sie-feature-rotation",
-      "snapshot_date": "2026-11-25"
-    },
-    {
-      "id": "sie-equivariant-predictability",
-      "tab_label": "Feature prediction",
-      "order": 62,
-      "eyebrow": "ModelNet40 · rotation-conditioned prediction",
-      "title": "Correct rotation predicts equivariant features substantially better",
-      "status": "complete",
-      "question": "Does the relative rotation help a frozen linear transformation probe predict the rotated feature?",
-      "intuition": "If equivariant features change systematically with pose, the correct rotation should outperform identity, an incorrect rotation, and an unconditioned feature-only map. Invariant features should have little need for rotation conditioning.",
-      "method": "Bilinear-conditioned ridge probes were fitted on all 9,840 ModelNet40 training clouds using the original feature, the 3×3 Haar rotation, and their outer-product interactions. They predicted mean-pooled rotated features and were evaluated on all 2,468 test clouds. The same fitted conditioned probe received correct, identity, or randomly incorrect rotations; a separate feature-only ridge probe supplied the unconditioned control.",
-      "takeaway": "For equivariant features, correct-rotation MSE was 0.001096: 60.0% below identity conditioning, 60.4% below incorrect conditioning, and 36.9% below the unconditioned probe. Invariant features did not benefit: their unconditioned MSE was lowest at 0.00002736.",
-      "caveat": "The probe is linear in an explicitly expanded bilinear feature space and evaluates one deterministic rotation draw per object. Low prediction error demonstrates decodable structure, not exact SO(3) equivariance or composition consistency.",
-      "metrics": [
-        {
-          "label": "Equivariant · correct R",
-          "value": "0.001096",
-          "detail": "Per-dimension test MSE"
-        },
-        {
-          "label": "Equivariant · wrong R",
-          "value": "0.002765",
-          "detail": "Random incorrect rotation"
-        },
-        {
-          "label": "Correct-R reduction",
-          "value": "60.4%",
-          "detail": "Versus incorrect R"
-        }
-      ],
-      "chart": {
-        "type": "progress",
-        "title": "Feature prediction MSE · lower is better",
-        "series": [
-          {
-            "name": "Equivariant · correct R",
-            "value": 0.00109585,
-            "total": 0.003,
-            "detail": "conditioned probe"
-          },
-          {
-            "name": "Equivariant · identity",
-            "value": 0.00274096,
-            "total": 0.003,
-            "detail": "identity control"
-          },
-          {
-            "name": "Equivariant · incorrect R",
-            "value": 0.00276494,
-            "total": 0.003,
-            "detail": "random wrong-rotation control"
-          },
-          {
-            "name": "Equivariant · no R",
-            "value": 0.00173815,
-            "total": 0.003,
-            "detail": "separately fitted unconditioned probe"
-          }
-        ]
-      },
-      "table": {
-        "columns": [
-          "Probe condition",
-          "Invariant MSE",
-          "Equivariant MSE"
-        ],
-        "rows": [
-          [
-            "Correct rotation",
-            "0.00003474",
-            "0.00109585"
-          ],
-          [
-            "Identity rotation",
-            "0.00003431",
-            "0.00274096"
-          ],
-          [
-            "Incorrect rotation",
-            "0.00003497",
-            "0.00276494"
-          ],
-          [
-            "No conditioning",
-            "0.00002736",
-            "0.00173815"
-          ]
-        ]
-      },
-      "source_id": "sie-feature-rotation",
-      "snapshot_date": "2026-11-25"
-    },
-    {
-      "id": "sie-rotation-information-probe",
-      "tab_label": "Rotation decoding",
-      "order": 63,
-      "eyebrow": "ModelNet40 · relative rotation probe",
-      "title": "Equivariant features carry the strongest relative-rotation signal",
-      "status": "complete",
-      "question": "Which frozen representation best supports prediction of the relative rotation between two independently rotated views?",
-      "intuition": "An invariant representation should discard pose, while an equivariant representation should retain pose changes. Comparing against standard Point-JEPA and an identity predictor calibrates how much rotation information is accessible.",
-      "method": "Two-layer 256-unit GELU probes received concatenated feature pairs from independently Haar-rotated views. Probes were trained for 100 epochs on 9,840 ModelNet40 training clouds for invariant, equivariant, combined, and standard Point-JEPA features, then evaluated on 2,468 test clouds. Predicted 3×3 matrices were projected to SO(3) by SVD before geodesic error was computed.",
-      "takeaway": "Equivariant features achieved 109.04° mean geodesic error, improving by 17.20° over the identity baseline and 17.30° over invariant features. Standard Point-JEPA reached 118.57° and combined SIE features 121.37°. The invariant probe was statistically indistinguishable from the identity baseline by their overlapping 95% intervals.",
-      "caveat": "All probes use one initialization and one rotation pair per object. Their fixed hidden width does not equalize parameter counts across input dimensions, and an MLP probe measures accessible nonlinear information rather than a linear SO(3) action.",
-      "metrics": [
-        {
-          "label": "Equivariant error",
-          "value": "109.04°",
-          "detail": "95% CI 107.31–110.76°"
-        },
-        {
-          "label": "Standard Point-JEPA",
-          "value": "118.57°",
-          "detail": "95% CI 116.99–120.15°"
-        },
-        {
-          "label": "Identity baseline",
-          "value": "126.24°",
-          "detail": "95% CI 124.79–127.68°"
-        }
-      ],
-      "chart": {
-        "type": "progress",
-        "title": "Mean SO(3) geodesic error · lower is better",
-        "series": [
-          {
-            "name": "Equivariant",
-            "value": 109.038,
-            "total": 180,
-            "detail": "95% CI 107.31–110.76°"
-          },
-          {
-            "name": "Standard Point-JEPA",
-            "value": 118.57,
-            "total": 180,
-            "detail": "95% CI 116.99–120.15°"
-          },
-          {
-            "name": "Combined SIE",
-            "value": 121.3731,
-            "total": 180,
-            "detail": "95% CI 119.83–122.92°"
-          },
-          {
-            "name": "Identity baseline",
-            "value": 126.2395,
-            "total": 180,
-            "detail": "95% CI 124.79–127.68°"
-          },
-          {
-            "name": "Invariant",
-            "value": 126.3373,
-            "total": 180,
-            "detail": "95% CI 124.86–127.82°"
-          }
-        ]
-      },
-      "table": {
-        "columns": [
-          "Representation",
-          "Mean geodesic error",
-          "95% CI",
-          "Median"
-        ],
-        "rows": [
-          [
-            "Equivariant",
-            "109.04°",
-            "107.31–110.76°",
-            "112.14°"
-          ],
-          [
-            "Standard Point-JEPA",
-            "118.57°",
-            "116.99–120.15°",
-            "123.25°"
-          ],
-          [
-            "Combined SIE",
-            "121.37°",
-            "119.83–122.92°",
-            "126.42°"
-          ],
-          [
-            "Identity baseline",
-            "126.24°",
-            "124.79–127.68°",
-            "131.79°"
-          ],
-          [
-            "Invariant",
-            "126.34°",
-            "124.86–127.82°",
-            "133.40°"
-          ]
-        ]
-      },
-      "source_id": "sie-feature-rotation",
-      "snapshot_date": "2026-11-25"
-    },
-    {
-      "id": "sie-point-jepa-downstream-rotation",
-      "tab_label": "SIE-PointJEPA",
-      "order": 65,
-      "eyebrow": "SIE-PointJEPA · complete downstream matrix",
-      "title": "Historical downstream matrix is superseded",
-      "status": "superseded",
-      "question": "How do full and rank-8 LoRA fine-tuning compare when downstream heads use only invariant features, only equivariant features, or their concatenation under canonical, z-axis, and fresh Haar SO(3) test rotations?",
-      "intuition": "The invariant and equivariant branches can carry different task information. Testing each branch and their concatenation with both adaptation regimes reveals whether rotation-robust predictions require one designated branch or benefit from end-to-end readout adaptation.",
-      "method": "All 12 dataset × tuning × representation combinations were trained from the completed epoch-300 SIE-PointJEPA checkpoint with SO(3)-rotated inputs. Each saved best checkpoint was evaluated on all 2,468 ModelNet40 test clouds or 2,874 ShapeNetPart test shapes under no rotation, uniform z-axis rotation, and Haar SO(3), using deterministic sampling and rotation seed 2026.",
-      "takeaway": "These measurements are retained only as historical diagnostics. The trainer used the official test split for per-epoch fixed-seed SO(3) checkpoint selection, so none of the values qualify as final benchmark results. Replacement experiments use disjoint validation data, three training seeds, and fresh multi-seed test rotations.",
-      "caveat": "INVALID FOR FINAL REPORTING: best checkpoints were selected using labels and fixed SO(3) rotations from the same official test split reported here. Test labels did not receive gradients, but repeated test-based model selection can inflate results. Rotation-robust predictions do not prove exact representation invariance or equivariance.",
-      "metrics": [
-        {
-          "label": "ModelNet40 SO(3) OA",
-          "value": "89.02%",
-          "detail": "Historical · test-selected · do not report"
-        },
-        {
-          "label": "ShapeNetPart SO(3) instance mIoU",
-          "value": "80.14%",
-          "detail": "Historical · test-selected · do not report"
-        },
-        {
-          "label": "Replacement protocol",
-          "value": "3 seeds",
-          "detail": "Disjoint validation · 3 test rotations per mode"
-        }
-      ],
-      "chart": {
-        "type": "protocol-bars",
-        "title": "Best full and LoRA results by test rotation",
-        "y_label": "Accuracy / instance mIoU (%)",
-        "series": [
-          {
-            "name": "ModelNet40 · full z_equi",
-            "none": 88.13,
-            "z": 88.57,
-            "so3": 89.02
-          },
-          {
-            "name": "ModelNet40 · LoRA z_full",
-            "none": 87.88,
-            "z": 88.37,
-            "so3": 88.74
-          },
-          {
-            "name": "ShapeNetPart · full z_full",
-            "none": 80.06,
-            "z": 80.05,
-            "so3": 80.14
-          },
-          {
-            "name": "ShapeNetPart · LoRA z_full",
-            "none": 79.74,
-            "z": 79.9,
-            "so3": 79.91
-          }
-        ]
-      },
-      "notes": [
-        "The entire table is historical and invalid for final benchmark reporting because the official test split influenced checkpoint selection.",
-        "Full z_inv gives the strongest ShapeNetPart SO(3) class mIoU at 76.35%, while full z_full gives the strongest instance mIoU and point accuracy.",
-        "The focused implementation suite passes 34 tests, including rotation algebra, correspondence, stop-gradient boundaries, LoRA freezing, z-axis rotation, and checkpoint restoration."
-      ],
-      "table": {
-        "columns": [
-          "Dataset",
-          "Fine-tune",
-          "Features",
-          "No rotation",
-          "Z rotation",
-          "SO(3)"
-        ],
-        "rows": [
-          [
-            "ModelNet40 accuracy",
-            "LoRA",
-            "z_inv",
-            "88.61%",
-            "88.01%",
-            "88.41%"
-          ],
-          [
-            "ModelNet40 accuracy",
-            "LoRA",
-            "z_equi",
-            "88.09%",
-            "88.25%",
-            "88.21%"
-          ],
-          [
-            "ModelNet40 accuracy",
-            "LoRA",
-            "z_full",
-            "87.88%",
-            "88.37%",
-            "88.74%"
-          ],
-          [
-            "ModelNet40 accuracy",
-            "Full",
-            "z_inv",
-            "87.84%",
-            "88.09%",
-            "88.33%"
-          ],
-          [
-            "ModelNet40 accuracy",
-            "Full",
-            "z_equi",
-            "88.13%",
-            "88.57%",
-            "89.02%"
-          ],
-          [
-            "ModelNet40 accuracy",
-            "Full",
-            "z_full",
-            "87.93%",
-            "88.53%",
-            "88.53%"
-          ],
-          [
-            "ShapeNetPart instance mIoU",
-            "LoRA",
-            "z_inv",
-            "79.69%",
-            "79.62%",
-            "79.77%"
-          ],
-          [
-            "ShapeNetPart instance mIoU",
-            "LoRA",
-            "z_equi",
-            "79.83%",
-            "79.91%",
-            "79.86%"
-          ],
-          [
-            "ShapeNetPart instance mIoU",
-            "LoRA",
-            "z_full",
-            "79.74%",
-            "79.90%",
-            "79.91%"
-          ],
-          [
-            "ShapeNetPart instance mIoU",
-            "Full",
-            "z_inv",
-            "79.94%",
-            "79.98%",
-            "80.07%"
-          ],
-          [
-            "ShapeNetPart instance mIoU",
-            "Full",
-            "z_equi",
-            "80.06%",
-            "79.92%",
-            "80.01%"
-          ],
-          [
-            "ShapeNetPart instance mIoU",
-            "Full",
-            "z_full",
-            "80.06%",
-            "80.05%",
-            "80.14%"
-          ]
-        ]
-      },
-      "source_id": "sie-point-jepa-node",
-      "snapshot_date": "2026-11-24"
-    },
-    {
-      "id": "sie-seed2026-downstream-final-test",
-      "tab_label": "Clean downstream",
-      "order": 66,
-      "eyebrow": "ModelNet40 + ShapeNetPart · seed 2026",
-      "title": "Validation-selected SIE models remain stable under unseen rotations",
+      "id": "sie-c1-c2-modelnet-validation-20261127",
+      "tab_label": "SIE C1/C2",
+      "order": 68,
+      "eyebrow": "ModelNet40 · validation only · seed 2026",
+      "title": "A compact linear recipe and eight-view averaging give small validation gains",
       "status": "preliminary",
-      "question": "How do invariant, equivariant, and combined representations compare after linear, LoRA, and full fine-tuning on untouched official test sets?",
-      "intuition": "Validation-only checkpoint selection and paired official-test rotations make tuning modes and representation branches directly comparable.",
-      "method": "Each checkpoint was selected by SO(3) performance on a disjoint validation partition. The selected seed-2026 checkpoint was then evaluated on all 2,468 ModelNet40 test clouds and 2,874 ShapeNetPart test shapes under identity and three previously unused z-axis and Haar-uniform SO(3) seeds.",
-      "takeaway": "LoRA with combined features led ModelNet40 at 88.11% SO(3) accuracy. Full fine-tuning with invariant features reached 79.99% ShapeNetPart instance mIoU and 76.14% class mIoU under SO(3).",
-      "caveat": "This is one training seed. Plus/minus values are standard deviations over three test-rotation seeds, not training-seed uncertainty.",
+      "question": "Can a better cached linear-probe recipe or rotation-ensemble inference improve the frozen combined SIE representation before changing pretraining?",
+      "intuition": "Cheap validation-only optimization can separate head-training and test-time-averaging gains from representation changes before expensive pretraining experiments.",
+      "method": "A 12-arm fractional grid varied linear-head learning rate, weight decay, and label smoothing on a frozen raw combined cache; a separate arm standardized features using training statistics only. Checkpoints were selected by mean accuracy over fixed SO(3) validation seeds 82001, 82002, and 82003. The selected head was then evaluated with nested 1-, 4-, and 8-view SO(3) logit averaging on the same held-out validation protocol.",
+      "takeaway": "The selected lr=0.001, weight-decay=0.01, smoothing=0.05 recipe reached 85.91% validation accuracy, +0.20 points over the matched legacy recipe. Eight-view averaging reached 86.14%, +0.20 points over direct one-view inference, while reducing variation across the three outer rotation seeds.",
+      "caveat": "These are seed-2026 validation results, not official-test claims. The C1 recipe still needs training-seed confirmation. Rotation averaging costs approximately 4× or 8× inference and is a test-time ensemble, not a representation improvement.",
       "metrics": [
         {
-          "label": "ModelNet40 SO(3)",
-          "value": "88.11 ± 0.13%",
-          "detail": "LoRA · combined"
+          "label": "C1 selected recipe",
+          "value": "85.91%",
+          "detail": "+0.20 pp vs matched legacy"
         },
         {
-          "label": "ShapeNet SO(3) inst.",
-          "value": "79.99 ± 0.04%",
-          "detail": "Full · invariant"
+          "label": "C2 four-view",
+          "value": "86.11%",
+          "detail": "+0.17 pp vs one view"
         },
         {
-          "label": "ShapeNet SO(3) class",
-          "value": "76.14 ± 0.15%",
-          "detail": "Full · invariant"
+          "label": "C2 eight-view",
+          "value": "86.14%",
+          "detail": "+0.20 pp vs one view · 8× cost"
         }
       ],
       "chart": {
         "type": "progress",
-        "title": "SO(3) official-test performance · seed 2026",
+        "title": "SO(3) validation accuracy",
         "series": [
           {
-            "name": "ModelNet · LoRA combined",
-            "value": 88.1145,
+            "name": "Matched legacy recipe",
+            "value": 85.7046,
             "total": 100,
-            "detail": "accuracy"
+            "detail": "single view · cached"
           },
           {
-            "name": "ShapeNet · Full invariant",
-            "value": 79.9948,
+            "name": "C1 selected recipe",
+            "value": 85.9079,
             "total": 100,
-            "detail": "instance mIoU"
+            "detail": "single view · cached"
           },
           {
-            "name": "ShapeNet · Full invariant",
-            "value": 76.1377,
+            "name": "C2 direct one-view",
+            "value": 85.9417,
             "total": 100,
-            "detail": "class mIoU"
-          }
-        ]
-      },
-      "table": {
-        "columns": [
-          "Tuning",
-          "Representation",
-          "ModelNet SO(3)",
-          "ShapeNet inst.",
-          "ShapeNet class"
-        ],
-        "rows": [
-          [
-            "Linear",
-            "Invariant",
-            "75.51 ± 0.31%",
-            "60.25 ± 0.06%",
-            "59.06 ± 0.13%"
-          ],
-          [
-            "Linear",
-            "Equivariant",
-            "83.20 ± 0.22%",
-            "68.56 ± 0.03%",
-            "64.38 ± 0.12%"
-          ],
-          [
-            "Linear",
-            "Combined",
-            "84.74 ± 0.11%",
-            "71.08 ± 0.07%",
-            "66.53 ± 0.18%"
-          ],
-          [
-            "LoRA",
-            "Invariant",
-            "86.68 ± 0.25%",
-            "79.57 ± 0.06%",
-            "75.15 ± 0.14%"
-          ],
-          [
-            "LoRA",
-            "Equivariant",
-            "87.67 ± 0.16%",
-            "79.50 ± 0.04%",
-            "74.86 ± 0.19%"
-          ],
-          [
-            "LoRA",
-            "Combined",
-            "88.11 ± 0.13%",
-            "79.68 ± 0.11%",
-            "75.26 ± 0.22%"
-          ],
-          [
-            "Full",
-            "Invariant",
-            "87.84 ± 0.14%",
-            "79.99 ± 0.04%",
-            "76.14 ± 0.15%"
-          ],
-          [
-            "Full",
-            "Equivariant",
-            "87.26 ± 0.22%",
-            "79.94 ± 0.02%",
-            "76.08 ± 0.08%"
-          ],
-          [
-            "Full",
-            "Combined",
-            "87.71 ± 0.13%",
-            "79.91 ± 0.09%",
-            "75.81 ± 0.25%"
-          ]
-        ]
-      },
-      "source_id": "sie-seed2026-final-test",
-      "snapshot_date": "2026-11-25"
-    },
-    {
-      "id": "sie-controlled-downstream-validation-seed2026",
-      "tab_label": "SIE controlled screen",
-      "order": 67,
-      "eyebrow": "ModelNet40 + ShapeNetPart · validation only · seed 2026",
-      "title": "Three-neighbor interpolation isolates the primary segmentation bottleneck",
-      "status": "preliminary",
-      "question": "Which inexpensive downstream changes improve SIE-PointJEPA while preserving the original pretrained representation and rotation protocol?",
-      "intuition": "Frozen-head and one-factor segmentation comparisons can distinguish representation limitations from downstream pooling, upsampling, loss, and decoder bottlenecks before changing pretraining.",
-      "method": "The fixed pretrained checkpoint was evaluated with held-out training/validation data only. Classification used frozen invariant, equivariant, and combined features with linear and nonlinear heads. Seven 64-patch ShapeNetPart arms used the same seed, LoRA budget, optimizer, split, 100-epoch budget, SO(3) augmentation, and mean validation selection over rotation seeds 82001, 82002, and 82003. S1--S4 changed one factor each; S5 combined the inexpensive changes; S6 changed only the local feature source to selected intermediate encoder layers.",
-      "takeaway": "Three-neighbor inverse-distance interpolation raised ShapeNetPart validation instance mIoU from 80.95% to 83.73% (+2.77 points). FPS, category-valid loss, and branch normalization were individually neutral. The intermediate decoder reached 83.22%, below the simpler combined decoder while using substantially more memory. Frozen ModelNet40 screening peaked at 85.84% with a nonlinear MLP-512 head, only 0.14 points above the raw combined linear probe.",
-      "caveat": "These are single-training-seed validation results, not official-test claims. The classification MLP is a nonlinear probe. Multi-seed confirmation is required before freezing a configuration or accessing the official test splits.",
-      "metrics": [
-        {
-          "label": "ShapeNet S2 inst. mIoU",
-          "value": "83.73%",
-          "detail": "+2.77 pp vs S0 validation"
-        },
-        {
-          "label": "Best frozen ModelNet",
-          "value": "85.84%",
-          "detail": "MLP-512 combined · validation"
-        },
-        {
-          "label": "Stable FPS overlap",
-          "value": "100%",
-          "detail": "26.9% for legacy FPS"
-        }
-      ],
-      "chart": {
-        "type": "progress",
-        "title": "ShapeNetPart SO(3) validation instance mIoU",
-        "series": [
-          {
-            "name": "S0 protocol control",
-            "value": 80.9542,
-            "total": 100,
-            "detail": "representation decoder"
+            "detail": "direct encoder"
           },
           {
-            "name": "S1 stable FPS",
-            "value": 80.9295,
+            "name": "C2 four-view",
+            "value": 86.1111,
             "total": 100,
-            "detail": "FPS only"
+            "detail": "4× inference"
           },
           {
-            "name": "S2 3-NN interpolation",
-            "value": 83.7259,
+            "name": "C2 eight-view",
+            "value": 86.145,
             "total": 100,
-            "detail": "best"
-          },
-          {
-            "name": "S3 valid CE",
-            "value": 80.9847,
-            "total": 100,
-            "detail": "loss only"
-          },
-          {
-            "name": "S4 branch normalization",
-            "value": 80.8156,
-            "total": 100,
-            "detail": "normalization only"
-          },
-          {
-            "name": "S5 inexpensive combined",
-            "value": 83.5218,
-            "total": 100,
-            "detail": "representation decoder"
-          },
-          {
-            "name": "S6 intermediate decoder",
-            "value": 83.2222,
-            "total": 100,
-            "detail": "higher memory"
+            "detail": "8× inference"
           }
         ]
       },
       "table": {
         "columns": [
           "Arm",
-          "Intervention",
-          "Instance mIoU",
-          "Delta vs S0",
-          "Class mIoU",
-          "Peak GPU memory"
+          "Validation accuracy",
+          "Delta",
+          "Interpretation"
         ],
         "rows": [
           [
-            "S0",
-            "Protocol control",
-            "80.95%",
-            "control",
-            "76.03%",
-            "970 MiB"
-          ],
-          [
-            "S1",
-            "Stable FPS",
-            "80.93%",
-            "-0.02 pp",
-            "76.22%",
-            "970 MiB"
-          ],
-          [
-            "S2",
-            "3-NN interpolation",
-            "83.73%",
-            "+2.77 pp",
-            "78.45%",
-            "2,236 MiB"
-          ],
-          [
-            "S3",
-            "Category-valid CE",
-            "80.98%",
-            "+0.03 pp",
-            "75.81%",
-            "969 MiB"
-          ],
-          [
-            "S4",
-            "Branch normalization",
-            "80.82%",
-            "-0.14 pp",
-            "76.00%",
-            "970 MiB"
-          ],
-          [
-            "S5",
-            "Combined inexpensive",
-            "83.52%",
-            "+2.57 pp",
-            "78.14%",
-            "2,239 MiB"
-          ],
-          [
-            "S6",
-            "Intermediate decoder",
-            "83.22%",
-            "+2.27 pp",
-            "77.45%",
-            "3,852 MiB"
-          ]
-        ]
-      },
-      "source_id": "sie-controlled-screen-seed2026",
-      "snapshot_date": "2026-11-26"
-    },
-    {
-      "id": "sie-classification-three-seed-validation",
-      "tab_label": "SIE probe confirmation",
-      "order": 68,
-      "eyebrow": "ModelNet40 · validation only · seeds 2026–2028",
-      "title": "The apparent MLP-512 advantage does not replicate",
-      "status": "complete",
-      "question": "Does additional nonlinear head capacity consistently improve the frozen combined representation?",
-      "intuition": "Repeating the selected linear and nonlinear probes across training seeds distinguishes a reproducible representation result from head-optimization variance.",
-      "method": "The fixed pretrained checkpoint and frozen raw combined features were evaluated with identical splits, three cached SO(3) training views, 100-epoch budgets, and mean validation checkpoint selection over rotation seeds 82001, 82002, and 82003. Only the head initialization and training seed changed. The official test split was not accessed.",
-      "takeaway": "The linear probe reaches 85.66% +/- 0.05 across three seeds, while MLP-512 reaches 85.43% +/- 0.41. The seed-2026 MLP gain reverses in the multi-seed mean. The linear probe is therefore the preferred representation result; MLP-512 remains a nonlinear diagnostic.",
-      "caveat": "These are held-out validation results, not official-test claims. Segmentation multi-seed confirmation is still in progress and is reported separately only after completion.",
-      "metrics": [
-        {
-          "label": "Linear mean",
-          "value": "85.66%",
-          "detail": "+/- 0.05 pp sample SD"
-        },
-        {
-          "label": "MLP-512 mean",
-          "value": "85.43%",
-          "detail": "+/- 0.41 pp sample SD"
-        },
-        {
-          "label": "Mean difference",
-          "value": "+0.23 pp",
-          "detail": "linear minus MLP-512"
-        }
-      ],
-      "chart": {
-        "type": "progress",
-        "title": "ModelNet40 SO(3) validation accuracy",
-        "series": [
-          {
-            "name": "Linear seed 2026",
-            "value": 85.7046,
-            "total": 100,
-            "detail": "linear probe"
-          },
-          {
-            "name": "Linear seed 2027",
-            "value": 85.603,
-            "total": 100,
-            "detail": "linear probe"
-          },
-          {
-            "name": "Linear seed 2028",
-            "value": 85.6707,
-            "total": 100,
-            "detail": "linear probe"
-          },
-          {
-            "name": "MLP-512 seed 2026",
-            "value": 85.8401,
-            "total": 100,
-            "detail": "nonlinear probe"
-          },
-          {
-            "name": "MLP-512 seed 2027",
-            "value": 85.4336,
-            "total": 100,
-            "detail": "nonlinear probe"
-          },
-          {
-            "name": "MLP-512 seed 2028",
-            "value": 85.0271,
-            "total": 100,
-            "detail": "nonlinear probe"
-          }
-        ]
-      },
-      "table": {
-        "columns": [
-          "Probe",
-          "Seed 2026",
-          "Seed 2027",
-          "Seed 2028",
-          "Mean +/- SD",
-          "Parameters"
-        ],
-        "rows": [
-          [
-            "Raw combined linear",
+            "Matched legacy",
             "85.70%",
-            "85.60%",
-            "85.67%",
-            "85.66% +/- 0.05",
-            "30,760"
+            "control",
+            "cached one-view"
           ],
           [
-            "Raw combined MLP-512",
-            "85.84%",
-            "85.43%",
-            "85.03%",
-            "85.43% +/- 0.41",
-            "678,440"
+            "C1 selected",
+            "85.91%",
+            "+0.20 pp",
+            "head recipe"
+          ],
+          [
+            "C2 one-view",
+            "85.94%",
+            "control",
+            "direct encoder"
+          ],
+          [
+            "C2 four-view",
+            "86.11%",
+            "+0.17 pp",
+            "test-time ensemble"
+          ],
+          [
+            "C2 eight-view",
+            "86.14%",
+            "+0.20 pp",
+            "selected test-time ensemble"
           ]
         ]
-      }
+      },
+      "source_id": "sie-c1-c2-validation-20261127",
+      "snapshot_date": "2026-11-27"
     },
     {
       "id": "controlled-benchmarks",
