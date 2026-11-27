@@ -6,14 +6,14 @@ window.SITE_DATA = {
       "title": "Current server results"
     },
     {
-      "source_id": "so3-final",
-      "snapshot_date": "2026-11-06",
-      "title": "Joint invariant–equivariant VLM study"
+      "source_id": "sie-classification-confirmation",
+      "snapshot_date": "2026-11-27",
+      "title": "SIE-PointJEPA classification confirmation"
     },
     {
-      "source_id": "sie-point-jepa-node",
-      "snapshot_date": "2026-11-15",
-      "title": "SIE-PointJEPA downstream results"
+      "source_id": "sie-controlled-screen-seed2026",
+      "snapshot_date": "2026-11-26",
+      "title": "SIE-PointJEPA controlled downstream screening"
     },
     {
       "source_id": "sie-feature-rotation",
@@ -21,14 +21,19 @@ window.SITE_DATA = {
       "title": "SIE feature-space rotation analysis"
     },
     {
+      "source_id": "sie-point-jepa-node",
+      "snapshot_date": "2026-11-15",
+      "title": "SIE-PointJEPA downstream results"
+    },
+    {
       "source_id": "sie-seed2026-final-test",
       "snapshot_date": "2026-11-25",
       "title": "SIE-PointJEPA clean downstream evaluation"
     },
     {
-      "source_id": "sie-controlled-screen-seed2026",
-      "snapshot_date": "2026-11-26",
-      "title": "SIE-PointJEPA controlled downstream screening"
+      "source_id": "so3-final",
+      "snapshot_date": "2026-11-06",
+      "title": "Joint invariant–equivariant VLM study"
     }
   ],
   "experiments": [
@@ -1775,65 +1780,6 @@ window.SITE_DATA = {
       "snapshot_date": "2026-11-24"
     },
     {
-      "id": "controlled-benchmarks",
-      "tab_label": "Benchmark plan",
-      "order": 70,
-      "eyebrow": "Unified benchmark framework",
-      "title": "The controlled comparison is ready; the full matrix is not yet run",
-      "status": "ready",
-      "question": "How do eight point-cloud methods compare when rotation, data flow, seeds, and evaluation are controlled outside the architecture?",
-      "intuition": "A fair rotation study must apply the same experimental transform before each method's own sampling and geometry, while preserving author-specific architectures and optimization recipes.",
-      "method": "The frozen plan covers ModelNet40, ScanObjectNN PB_T50_RS, and ShapeNetPart. Protocols are Z→Z, Z→SO(3), and SO(3)→SO(3), with seeds 2026–2028 and deterministic evaluation rotations.",
-      "takeaway": "The ScanObjectNN matrix contains 72 experiments (8 methods × 3 protocols × 3 seeds); ShapeNetPart contains 63 (7 × 3 × 3). Integration, lifecycle, and rotation-path checks are complete, but substantive benchmark training has not been run on this server.",
-      "caveat": "No accuracy or IoU should be inferred from framework completeness. Smoke tests demonstrate execution correctness, not scientific performance.",
-      "metrics": [
-        {
-          "label": "ScanObjectNN plan",
-          "value": "72 runs",
-          "detail": "8 methods · 3 protocols · 3 seeds"
-        },
-        {
-          "label": "ShapeNetPart plan",
-          "value": "63 runs",
-          "detail": "7 methods · 3 protocols · 3 seeds"
-        },
-        {
-          "label": "Substantive runs",
-          "value": "0 / 135",
-          "detail": "Framework ready"
-        }
-      ],
-      "chart": {
-        "type": "matrix",
-        "title": "Frozen controlled protocols",
-        "methods": [
-          "PointNet",
-          "PointNet++",
-          "DGCNN",
-          "RSCNN",
-          "RISurConv",
-          "DiPVNet",
-          "EnRI-GAM",
-          "RIConv"
-        ],
-        "protocols": [
-          "Z → Z",
-          "Z → SO(3)",
-          "SO(3) → SO(3)"
-        ],
-        "segmentation_excludes": [
-          "EnRI-GAM"
-        ]
-      },
-      "notes": [
-        "Controlled flow: canonical sample → experimental rotation → method-specific sampling/geometry/augmentation → author model.",
-        "Evaluation rotation is deterministic from seed, split, and stable sample identity.",
-        "Integrations explicitly distinguish author-native paths from controlled adaptations."
-      ],
-      "source_id": "node-a",
-      "snapshot_date": "2026-10-23"
-    },
-    {
       "id": "sie-seed2026-downstream-final-test",
       "tab_label": "Clean downstream",
       "order": 66,
@@ -2110,6 +2056,165 @@ window.SITE_DATA = {
       },
       "source_id": "sie-controlled-screen-seed2026",
       "snapshot_date": "2026-11-26"
+    },
+    {
+      "id": "sie-classification-three-seed-validation",
+      "tab_label": "SIE probe confirmation",
+      "order": 68,
+      "eyebrow": "ModelNet40 · validation only · seeds 2026–2028",
+      "title": "The apparent MLP-512 advantage does not replicate",
+      "status": "complete",
+      "question": "Does additional nonlinear head capacity consistently improve the frozen combined representation?",
+      "intuition": "Repeating the selected linear and nonlinear probes across training seeds distinguishes a reproducible representation result from head-optimization variance.",
+      "method": "The fixed pretrained checkpoint and frozen raw combined features were evaluated with identical splits, three cached SO(3) training views, 100-epoch budgets, and mean validation checkpoint selection over rotation seeds 82001, 82002, and 82003. Only the head initialization and training seed changed. The official test split was not accessed.",
+      "takeaway": "The linear probe reaches 85.66% +/- 0.05 across three seeds, while MLP-512 reaches 85.43% +/- 0.41. The seed-2026 MLP gain reverses in the multi-seed mean. The linear probe is therefore the preferred representation result; MLP-512 remains a nonlinear diagnostic.",
+      "caveat": "These are held-out validation results, not official-test claims. Segmentation multi-seed confirmation is still in progress and is reported separately only after completion.",
+      "metrics": [
+        {
+          "label": "Linear mean",
+          "value": "85.66%",
+          "detail": "+/- 0.05 pp sample SD"
+        },
+        {
+          "label": "MLP-512 mean",
+          "value": "85.43%",
+          "detail": "+/- 0.41 pp sample SD"
+        },
+        {
+          "label": "Mean difference",
+          "value": "+0.23 pp",
+          "detail": "linear minus MLP-512"
+        }
+      ],
+      "chart": {
+        "type": "progress",
+        "title": "ModelNet40 SO(3) validation accuracy",
+        "series": [
+          {
+            "name": "Linear seed 2026",
+            "value": 85.7046,
+            "total": 100,
+            "detail": "linear probe"
+          },
+          {
+            "name": "Linear seed 2027",
+            "value": 85.603,
+            "total": 100,
+            "detail": "linear probe"
+          },
+          {
+            "name": "Linear seed 2028",
+            "value": 85.6707,
+            "total": 100,
+            "detail": "linear probe"
+          },
+          {
+            "name": "MLP-512 seed 2026",
+            "value": 85.8401,
+            "total": 100,
+            "detail": "nonlinear probe"
+          },
+          {
+            "name": "MLP-512 seed 2027",
+            "value": 85.4336,
+            "total": 100,
+            "detail": "nonlinear probe"
+          },
+          {
+            "name": "MLP-512 seed 2028",
+            "value": 85.0271,
+            "total": 100,
+            "detail": "nonlinear probe"
+          }
+        ]
+      },
+      "table": {
+        "columns": [
+          "Probe",
+          "Seed 2026",
+          "Seed 2027",
+          "Seed 2028",
+          "Mean +/- SD",
+          "Parameters"
+        ],
+        "rows": [
+          [
+            "Raw combined linear",
+            "85.70%",
+            "85.60%",
+            "85.67%",
+            "85.66% +/- 0.05",
+            "30,760"
+          ],
+          [
+            "Raw combined MLP-512",
+            "85.84%",
+            "85.43%",
+            "85.03%",
+            "85.43% +/- 0.41",
+            "678,440"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "controlled-benchmarks",
+      "tab_label": "Benchmark plan",
+      "order": 70,
+      "eyebrow": "Unified benchmark framework",
+      "title": "The controlled comparison is ready; the full matrix is not yet run",
+      "status": "ready",
+      "question": "How do eight point-cloud methods compare when rotation, data flow, seeds, and evaluation are controlled outside the architecture?",
+      "intuition": "A fair rotation study must apply the same experimental transform before each method's own sampling and geometry, while preserving author-specific architectures and optimization recipes.",
+      "method": "The frozen plan covers ModelNet40, ScanObjectNN PB_T50_RS, and ShapeNetPart. Protocols are Z→Z, Z→SO(3), and SO(3)→SO(3), with seeds 2026–2028 and deterministic evaluation rotations.",
+      "takeaway": "The ScanObjectNN matrix contains 72 experiments (8 methods × 3 protocols × 3 seeds); ShapeNetPart contains 63 (7 × 3 × 3). Integration, lifecycle, and rotation-path checks are complete, but substantive benchmark training has not been run on this server.",
+      "caveat": "No accuracy or IoU should be inferred from framework completeness. Smoke tests demonstrate execution correctness, not scientific performance.",
+      "metrics": [
+        {
+          "label": "ScanObjectNN plan",
+          "value": "72 runs",
+          "detail": "8 methods · 3 protocols · 3 seeds"
+        },
+        {
+          "label": "ShapeNetPart plan",
+          "value": "63 runs",
+          "detail": "7 methods · 3 protocols · 3 seeds"
+        },
+        {
+          "label": "Substantive runs",
+          "value": "0 / 135",
+          "detail": "Framework ready"
+        }
+      ],
+      "chart": {
+        "type": "matrix",
+        "title": "Frozen controlled protocols",
+        "methods": [
+          "PointNet",
+          "PointNet++",
+          "DGCNN",
+          "RSCNN",
+          "RISurConv",
+          "DiPVNet",
+          "EnRI-GAM",
+          "RIConv"
+        ],
+        "protocols": [
+          "Z → Z",
+          "Z → SO(3)",
+          "SO(3) → SO(3)"
+        ],
+        "segmentation_excludes": [
+          "EnRI-GAM"
+        ]
+      },
+      "notes": [
+        "Controlled flow: canonical sample → experimental rotation → method-specific sampling/geometry/augmentation → author model.",
+        "Evaluation rotation is deterministic from seed, split, and stable sample identity.",
+        "Integrations explicitly distinguish author-native paths from controlled adaptations."
+      ],
+      "source_id": "node-a",
+      "snapshot_date": "2026-10-23"
     }
   ]
 };
